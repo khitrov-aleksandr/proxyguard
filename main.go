@@ -3,15 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/khitrov-aleksandr/proxyguard/handler"
 )
 
 var ctx = context.Background()
 
 func ExampleClient() {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "webproxy-redis:6379",
+		Addr:     "redis:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
@@ -40,5 +42,8 @@ func ExampleClient() {
 }
 
 func main() {
-	ExampleClient()
+	fmt.Println("Start server")
+	if err := http.ListenAndServe(":8080", handler.New()); err != nil {
+		fmt.Errorf("Couldn't run proxy: %v", err)
+	}
 }
