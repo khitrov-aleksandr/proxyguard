@@ -1,0 +1,19 @@
+FROM golang
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+ARG APP_USER_ID
+
+WORKDIR /app
+
+RUN apt-get update \
+&& apt-get -y install \
+telnet \
+vim \
+dnsutils \
+procps \
+net-tools \
+iputils-ping \
+&& apt clean
+
+RUN useradd -m -s /bin/bash -u$APP_USER_ID cli

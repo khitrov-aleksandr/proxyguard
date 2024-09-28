@@ -1,0 +1,37 @@
+services:
+  cli:
+    image: golang-cli
+    #cpus: 1
+    build:
+      dockerfile: docker/Dockerfile.cli
+      args:
+        APP_USER_ID: "${APP_USER_ID}"
+    user: "${APP_USER_ID}"
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    depends_on:
+      - redis
+    environment:
+      - TZ=Europe/Moscow
+    volumes:
+      - .:/app
+    profiles:
+      - donotstart
+
+  redis:
+    image: redis
+    container_name: redis
+    environment:
+      - TZ=Europe/Moscow
+    volumes:
+      - ./docker/conf/redis:/usr/local/etc/redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  redis-cli:
+    image: redis
+    command: redis-cli -h redis
+    environment:
+      - TZ=Europe/Moscow
+    profiles:
+      - donotstart
