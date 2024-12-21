@@ -17,7 +17,10 @@ services:
     environment:
       - TZ=Europe/Moscow
     volumes:
+      - ../go/pkg:/go/pkg
+      - home_cli_data:/home/cli
       - .:/app
+      - ./logs:/app/logs
     profiles:
       - donotstart
 
@@ -37,3 +40,6 @@ services:
       - TZ=Europe/Moscow
     profiles:
       - donotstart
+
+volumes:
+    home_cli_data:

@@ -1,17 +1,34 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
-	"net/http"
+
+	"github.com/khitrov-aleksandr/proxyguard/faker"
+	"github.com/khitrov-aleksandr/proxyguard/filter"
+	"github.com/labstack/echo/v4"
 )
 
-type handler struct {
-}
+func RequestHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		req := c.Request()
+		uri := req.RequestURI
 
-func New() *handler {
-	return &handler{}
-}
+		if uri == "/api/v8/manzana/registration" {
+			requestData := make(map[string]interface{})
 
-func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "Hello, world!\n")
+			b, _ := io.ReadAll(req.Body)
+
+			req.Body = io.NopCloser(bytes.NewBuffer(b))
+
+			json.Unmarshal(b, &requestData)
+
+			if filter.BlockByEmail(c) {
+				return faker.GetTokenResponse(c)
+			}
+		}
+
+		return next(c)
+	}
 }
