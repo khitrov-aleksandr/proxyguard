@@ -1,17 +1,13 @@
 package config
 
 type Config struct {
-	Port          string
-	BackendScheme string
-	BackendHost   string
-	BackendPort   string
+	BackendUrl string
+	Port       string
 }
 
 func New() *Config {
 	return &Config{
-		Port:          "8080",
-		BackendScheme: "https",
-		BackendHost:   "google.com",
-		BackendPort:   "443",
+		BackendUrl: "https://app-01.prod.superapteka.ru",
+		Port:       "8080",
 	}
 }

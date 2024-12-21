@@ -1,19 +1,13 @@
 package faker
 
-import (
-	"net/http"
-
-	"github.com/labstack/echo/v4"
-)
-
-type tokenResponse struct {
+type TokenResponse struct {
 	Token string `json:"token"`
 }
 
-func GetTokenResponse(c echo.Context) error {
-	return c.JSONPretty(http.StatusOK, &tokenResponse{
+func GetTokenResponse() *TokenResponse {
+	return &TokenResponse{
 		Token: getToken(),
-	}, "")
+	}
 }
 
 func getToken() string {
