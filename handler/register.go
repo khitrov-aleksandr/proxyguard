@@ -27,7 +27,7 @@ func (h *Handler) RegisterHandler(next echo.HandlerFunc) echo.HandlerFunc {
 			if filter.BlockByEmail(requestData["EmailAddress"].(string)) {
 				ip := c.RealIP()
 				h.blocker.Block(ip)
-				h.lg.Log(ip, "add to black list")
+				h.lg.Log(ip, "added to black list")
 				return c.JSONPretty(http.StatusOK, faker.GetTokenResponse(), "")
 			}
 		}
