@@ -1,7 +1,9 @@
 package logger
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -23,17 +25,23 @@ func NewRequestLogger() *RequestLogger {
 }
 
 func (l *RequestLogger) Log(c echo.Context) {
-	requestData := make(map[string]interface{})
-	_ = json.NewDecoder(c.Request().Body).Decode(&requestData)
+	req := c.Request()
 
-	headers, _ := json.Marshal(c.Request().Header)
+	requestData := make(map[string]interface{})
+
+	b, _ := io.ReadAll(req.Body)
+	json.Unmarshal(b, &requestData)
+
+	req.Body = io.NopCloser(bytes.NewBuffer(b))
+
+	headers, _ := json.Marshal(req.Header)
 	body, _ := json.Marshal(requestData)
 
 	l.lg.Info().
 		Timestamp().
 		Str("ip", c.RealIP()).
-		Str("method", c.Request().Method).
-		Str("uri", c.Request().RequestURI).
+		Str("method", req.Method).
+		Str("uri", req.RequestURI).
 		RawJSON("headers", headers).
 		RawJSON("body", body).
 		Msg("")

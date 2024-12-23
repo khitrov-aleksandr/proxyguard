@@ -11,7 +11,6 @@ import (
 	"github.com/khitrov-aleksandr/proxyguard/handler"
 	"github.com/khitrov-aleksandr/proxyguard/logger"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 type Proxy struct {
@@ -38,21 +37,12 @@ func (p *Proxy) Run() {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	p.s.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogURI:    true,
-		LogStatus: true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			p.rl.Log(c)
-			return nil
-		},
-	}))
-
+	p.s.Use(p.h.LogHandler)
 	p.s.Use(p.h.RegisterHandler)
 	p.s.Use(p.h.LoginHandler)
 
 	p.s.Any("/*", func(c echo.Context) error {
 		proxy.ServeHTTP(c.Response().Writer, c.Request())
-
 		return nil
 	})
 
