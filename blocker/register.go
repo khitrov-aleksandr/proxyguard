@@ -21,12 +21,13 @@ func NewRegisterBlocker(repository repository.Repository) *RegisterBlocker {
 }
 
 func (r *RegisterBlocker) Block(ip string) {
-	key := fmt.Sprintf("reg_block:%s", ip)
-	fmt.Println(key)
-	r.repository.Save(key, ip, BlockTime)
+	r.repository.Save(getKey(ip), ip, BlockTime)
 }
 
 func (r *RegisterBlocker) IsBlocked(ip string) bool {
-	key := fmt.Sprintf("reg_block:%s", ip)
-	return r.repository.Get(key) == ip
+	return r.repository.Get(getKey(ip)) == ip
+}
+
+func getKey(ip string) string {
+	return fmt.Sprintf("reg_block:%s", ip)
 }
