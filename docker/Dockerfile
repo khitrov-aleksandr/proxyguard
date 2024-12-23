@@ -22,5 +22,4 @@ COPY --from=build --chown=app:app /tmp/run /app/run
 COPY --chown=app:app docker/docker-entrypoint.sh /
 RUN mkdir /app/logs
 RUN chmod +x /docker-entrypoint.sh
-#ENTRYPOINT [ "/docker-entrypoint.sh" ]
-ENTRYPOINT [ "bash" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
