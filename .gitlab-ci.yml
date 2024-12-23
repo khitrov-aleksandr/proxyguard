@@ -15,7 +15,7 @@ default:
   script:
     - docker build
       -t $TAG_COMMIT -t $TAG_LATEST
-      --build-arg SERVICE_USER_ID=$SERVICE_USER_ID
+      --build-arg APP_USER_ID=$APP_USER_ID
       -f ./docker/Dockerfile .
 
 .publish:
