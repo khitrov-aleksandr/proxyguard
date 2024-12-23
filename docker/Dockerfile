@@ -9,7 +9,7 @@ RUN chown -R app\: .
 USER app
 RUN CGO_ENABLED=0 GOOS=linux go build -o /tmp/run *.go
 
-FROM alpine AS recording
+FROM alpine AS app
 ARG APP_USER_ID
 RUN apk update
 RUN apk upgrade
@@ -20,5 +20,6 @@ USER app
 
 COPY --from=build /tmp/run /app/run
 COPY --chown=app:app docker/docker-entrypoint.sh /
+RUN mkdir -p /app/logs
 RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
