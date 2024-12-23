@@ -16,6 +16,7 @@ RUN apk upgrade
 RUN apk add --no-cache tzdata
 
 RUN adduser -u$APP_USER_ID -D app
+RUN chown app\: /app
 USER app
 
 COPY --from=build /tmp/run /app/run
