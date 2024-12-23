@@ -16,11 +16,10 @@ RUN apk upgrade
 RUN apk add --no-cache tzdata
 
 RUN adduser -u$APP_USER_ID -D app
-RUN chown app\: /app
 USER app
 
-COPY --from=build /tmp/run /app/run
+COPY --from=build --chown=app:app /tmp/run /app/run
 COPY --chown=app:app docker/docker-entrypoint.sh /
-RUN mkdir -p /app/logs
+RUN mkdir /app/logs
 RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
