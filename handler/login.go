@@ -16,6 +16,7 @@ func (h *Handler) LoginHandler(next echo.HandlerFunc) echo.HandlerFunc {
 
 			if h.blocker.IsBlocked(ip) {
 				h.blocker.Block(ip)
+				h.lg.Log(ip, "is blocked")
 				return c.JSONPretty(http.StatusOK, faker.GetLoginResponse(), "")
 			}
 
