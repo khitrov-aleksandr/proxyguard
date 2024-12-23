@@ -37,7 +37,7 @@ default:
       --network $NETWORK
       --restart unless-stopped
       -p $PROXY_PORT:$PROXY_PORT
-      --name proxyguard $TAG_COMMIT
+      --name proxyguard $TAG_COMMIT /docker-entrypoint.sh
 
 .dev-env:
   environment: development
