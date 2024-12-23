@@ -10,10 +10,10 @@ services:
     working_dir: /app
     stdin_open: true
     tty: true
+    networks:
+      - dev
     ports:
-      - 8080:8080
-    depends_on:
-      - redis
+      - "${PORT}:${PORT}"
     environment:
       - TZ=Europe/Moscow
     volumes:
@@ -24,18 +24,20 @@ services:
     profiles:
       - donotstart
 
-  redis:
-    image: redis
-    container_name: redis
-    environment:
-      - TZ=Europe/Moscow
-    volumes:
-      - ./docker/conf/redis:/usr/local/etc/redis
-    command: redis-server /usr/local/etc/redis/redis.conf
+  #redis:
+  #  image: redis
+  #  container_name: redis
+  #  environment:
+  #    - TZ=Europe/Moscow
+  #  volumes:
+  #    - ./docker/conf/redis:/usr/local/etc/redis
+  #  command: redis-server /usr/local/etc/redis/redis.conf
 
   redis-cli:
     image: redis
-    command: redis-cli -h redis
+    command: redis-cli -h redis-dev
+    networks:
+      - dev
     environment:
       - TZ=Europe/Moscow
     profiles:
@@ -43,3 +45,8 @@ services:
 
 volumes:
     home_cli_data:
+
+networks:
+  dev:
+    name: dev
+    external: true

@@ -10,6 +10,7 @@ import (
 type Config struct {
 	BackendUrl string
 	Port       string
+	RedisAddr  string
 }
 
 func New() *Config {
@@ -22,5 +23,6 @@ func New() *Config {
 	return &Config{
 		BackendUrl: os.Getenv("BACKEND_URL"),
 		Port:       os.Getenv("PORT"),
+		RedisAddr:  os.Getenv("REDIS_ADDR"),
 	}
 }

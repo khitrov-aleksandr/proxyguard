@@ -1,0 +1,62 @@
+stages:
+  - build
+  - publish
+  - deploy
+
+variables:
+  TAG_LATEST: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest
+  TAG_COMMIT: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+
+default:
+  image: docker:latest
+
+.build:
+  stage: build
+  script:
+    - docker build
+      -t $TAG_COMMIT -t $TAG_LATEST
+      --build-arg SERVICE_USER_ID=$SERVICE_USER_ID
+      -f ./docker/Dockerfile .
+
+.publish:
+  stage: publish
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $TAG_COMMIT
+    - docker push $TAG_LATEST
+
+.deploy:
+  stage: deploy
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $TAG_COMMIT
+    - docker rm -f badges || true
+    - docker run -d
+      -v /home/service/proxyguard/.env:/app/.env
+      -v /home/service/proxyguard/logs:/app/logs
+      --network $NETWORK
+      --restart unless-stopped
+      -p $PROXY_PORT:$PROXY_PORT
+      --name proxyguard $TAG_COMMIT
+
+.dev-env:
+  environment: development
+  only:
+    - main
+  tags:
+    - dev
+
+build-dev:
+  extends:
+    - .build
+    - .dev-env
+
+publish-dev:
+  extends:
+    - .publish
+    - .dev-env
+
+deploy-dev:
+  extends:
+    - .deploy
+    - .dev-env

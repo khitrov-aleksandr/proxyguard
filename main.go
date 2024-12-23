@@ -16,7 +16,7 @@ func main() {
 	e := echo.New()
 
 	repository := repository.NewRedisRepository(redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
+		Addr: cfg.RedisAddr,
 	}), context.Background())
 
 	blocker := blocker.NewRegisterBlocker(repository)
