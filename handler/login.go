@@ -11,7 +11,7 @@ func (h *Handler) LoginHandler(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		uri := c.Request().RequestURI
 
-		if uri == "/api/v8/ecom-auth/login-sms-prestep" {
+		if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
 			ip := c.RealIP()
 
 			if h.blocker.IsBlocked(ip) {

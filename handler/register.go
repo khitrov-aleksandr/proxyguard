@@ -16,7 +16,7 @@ func (h *Handler) RegisterHandler(next echo.HandlerFunc) echo.HandlerFunc {
 		req := c.Request()
 		uri := req.RequestURI
 
-		if uri == "/api/v8/manzana/registration" {
+		if uri == "/api/v8/manzana/registration" || uri == "/mirror/manzana/registration" {
 			requestData := make(map[string]interface{})
 
 			b, _ := io.ReadAll(req.Body)
