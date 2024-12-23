@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/khitrov-aleksandr/proxyguard/blocker"
 	"github.com/khitrov-aleksandr/proxyguard/config"
 	"github.com/khitrov-aleksandr/proxyguard/handler"
 	"github.com/labstack/echo/v4"
@@ -18,10 +19,15 @@ import (
 type Proxy struct {
 	cfg *config.Config
 	s   *echo.Echo
+	h   *handler.Handler
 }
 
-func New(cfg *config.Config, s *echo.Echo) *Proxy {
-	return &Proxy{cfg: cfg, s: s}
+func New(cfg *config.Config, s *echo.Echo, blocker *blocker.RegisterBlocker) *Proxy {
+	return &Proxy{
+		cfg: cfg,
+		s:   s,
+		h:   handler.NewHandler(blocker),
+	}
 }
 
 func (p *Proxy) Run() {
@@ -64,7 +70,8 @@ func (p *Proxy) Run() {
 		},
 	}))
 
-	p.s.Use(handler.RegisterHandler)
+	p.s.Use(p.h.RegisterHandler)
+	p.s.Use(p.h.LoginHandler)
 
 	p.s.Any("/*", func(c echo.Context) error {
 		proxy.ServeHTTP(c.Response().Writer, c.Request())

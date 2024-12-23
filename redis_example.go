@@ -16,6 +16,11 @@ func ExampleClient() {
 		DB:       0,  // use default DB
 	})
 
+	err := rdb.Incr(ctx, "key", "value", 0).Err()
+	if err != nil {
+		panic(err)
+	}
+
 	err := rdb.Set(ctx, "key", "value", 0).Err()
 	if err != nil {
 		panic(err)

@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterHandler(next echo.HandlerFunc) echo.HandlerFunc {
+func (h *Handler) RegisterHandler(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := c.Request()
 		uri := req.RequestURI
@@ -25,6 +25,8 @@ func RegisterHandler(next echo.HandlerFunc) echo.HandlerFunc {
 			req.Body = io.NopCloser(bytes.NewBuffer(b))
 
 			if filter.BlockByEmail(requestData["EmailAddress"].(string)) {
+				ip := c.RealIP()
+				h.blocker.Block(ip)
 				return c.JSONPretty(http.StatusOK, faker.GetTokenResponse(), "")
 			}
 		}
