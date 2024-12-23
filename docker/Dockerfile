@@ -14,7 +14,7 @@ ARG APP_USER_ID
 ENV TZ=Europe/Moscow
 RUN apk update
 RUN apk upgrade
-RUN apk add --no-cache tzdata
+RUN apk add --no-cache tzdata bash
 
 RUN adduser -u$APP_USER_ID -D app
 USER app
