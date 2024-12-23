@@ -11,9 +11,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /tmp/run *.go
 
 FROM alpine AS app
 ARG APP_USER_ID
+ENV TZ=Europe/Moscow
 RUN apk update
 RUN apk upgrade
-RUN apk add --no-cache tzdata bash
+RUN apk add --no-cache tzdata
 
 RUN adduser -u$APP_USER_ID -D app
 USER app
