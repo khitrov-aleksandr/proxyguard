@@ -29,8 +29,8 @@ func New(port string, bUrl string, c *echo.Echo, h contract.Handler, l contract.
 }
 
 func (p *Proxy) Run() {
-	p.c.Use(p.h.Handler)
 	p.c.Use(p.l.Handler)
+	p.c.Use(p.h.Handler)
 
 	url, _ := url.Parse(p.bUrl)
 	proxy := httputil.NewSingleHostReverseProxy(url)
