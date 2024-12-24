@@ -46,6 +46,9 @@ func allowSession(c []*http.Cookie, r *http.Request, rp repository.Repository) b
 					rp.Expr(sameValCountSession(session), smallExpr)
 				} else {
 					if rp.Incr(diffValCountSession(session)) > diffValCount {
+						rp.Incr(sameValCountSession(session))
+						rp.Expr(sameValCountSession(session), bigExpr)
+
 						lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff val: session: %s phone: %s expr %d", session, phone, bigExpr))
 						return false
 					}
