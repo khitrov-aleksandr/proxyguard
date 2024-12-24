@@ -25,7 +25,7 @@ func NewLogger(filename string) *Logger {
 	return &Logger{lg: zerolog.New(logFile), filename: filename}
 }
 
-func (l *Logger) Log(next echo.HandlerFunc) echo.HandlerFunc {
+func (l *Logger) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		req := c.Request()
 

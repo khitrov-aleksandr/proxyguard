@@ -23,8 +23,8 @@ func main() {
 
 	blocker := blocker.NewRegisterBlocker(repository)
 
+	go site.Run(cfg, repository)
 	go monitor.Run(cfg)
-	go site.Run(cfg)
 
 	proxy := proxy.New(cfg, e, blocker)
 	proxy.Run()

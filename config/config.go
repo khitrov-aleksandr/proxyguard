@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	BackendUrl  string
-	Port        string
-	RedisAddr   string
-	SitePort    string
-	MonitorPort string
+	BackendUrl     string
+	Port           string
+	RedisAddr      string
+	SitePort       string
+	SiteBackendUrl string
+	MonitorPort    string
 }
 
 func New() *Config {
@@ -23,10 +24,11 @@ func New() *Config {
 	}
 
 	return &Config{
-		BackendUrl:  os.Getenv("BACKEND_URL"),
-		Port:        os.Getenv("PORT"),
-		RedisAddr:   os.Getenv("REDIS_ADDR"),
-		SitePort:    os.Getenv("SITE_PORT"),
-		MonitorPort: os.Getenv("MONITOR_PORT"),
+		BackendUrl:     os.Getenv("BACKEND_URL"),
+		Port:           os.Getenv("PORT"),
+		RedisAddr:      os.Getenv("REDIS_ADDR"),
+		SitePort:       os.Getenv("SITE_PORT"),
+		SiteBackendUrl: os.Getenv("SITE_BACKEND_URL"),
+		MonitorPort:    os.Getenv("MONITOR_PORT"),
 	}
 }

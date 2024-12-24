@@ -18,7 +18,7 @@ func Run(cfg *config.Config) {
 		return c.JSONPretty(http.StatusOK, GetResponse(), "")
 	})
 
-	e.Use(rl.Log)
+	e.Use(rl.Handler)
 
 	e.Start(fmt.Sprintf(":%s", cfg.MonitorPort))
 }

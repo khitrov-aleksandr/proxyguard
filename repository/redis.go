@@ -26,3 +26,11 @@ func (r *redisRepository) Save(str string, value any, exp int) error {
 func (r *redisRepository) Get(str string) any {
 	return r.rds.Get(r.ctx, str).Val()
 }
+
+func (r *redisRepository) Incr(str string) int64 {
+	return r.rds.Incr(r.ctx, str).Val()
+}
+
+func (r *redisRepository) Expr(str string, exp int) bool {
+	return r.rds.Expire(r.ctx, str, time.Duration(exp)*time.Second).Val()
+}
