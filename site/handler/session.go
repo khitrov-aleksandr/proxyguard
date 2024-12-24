@@ -30,7 +30,6 @@ func allowSession(c []*http.Cookie, r *http.Request, rp repository.Repository) b
 			rData := getBody(r)
 
 			phone := rData[phoneRusField]
-			fmt.Println(phone)
 			if phone == "" {
 				phone = rData[phoneField]
 			}
