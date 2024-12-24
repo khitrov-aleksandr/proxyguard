@@ -37,6 +37,8 @@ default:
       --network $NETWORK
       --restart unless-stopped
       -p $PROXY_PORT:$PROXY_PORT
+      -p $SITE_PORT:$SITE_PORT
+      -p $MONITOR_PORT:$MONITOR_PORT
       --name proxyguard $TAG_COMMIT
 
 .dev-env:
