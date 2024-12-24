@@ -30,7 +30,7 @@ func allowSession(c []*http.Cookie, r *http.Request, rp repository.Repository) b
 			rData := getBody(r)
 
 			phone := rData[phoneRusField]
-			if phone == "" {
+			if phone == nil {
 				phone = rData[phoneField]
 			}
 
