@@ -22,9 +22,9 @@ func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 		url := req.RequestURI
 
 		if url == "/api/customer/auth-sms" {
-			if !allowCookie(req.Cookies()) {
+			/*if !allowCookie(req.Cookies()) {
 				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
-			}
+			}*/
 
 			if !allowSession(req.Cookies(), req, h.rp) {
 				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
