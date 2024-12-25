@@ -36,8 +36,8 @@ default:
       -v /home/service/proxyguard/logs:/app/logs
       --network $NETWORK
       --restart unless-stopped
-      -p $PROXY_PORT:$PROXY_PORT
       -p $SITE_PORT:$SITE_PORT
+      -p $MOBILE_PORT:$MOBILE_PORT
       -p $MONITOR_PORT:$MONITOR_PORT
       --name proxyguard $TAG_COMMIT
 
