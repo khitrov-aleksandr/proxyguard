@@ -21,6 +21,7 @@ USER app
 
 COPY --from=build --chown=app:app /tmp/run /app/run
 COPY --chown=app:app docker/docker-entrypoint.sh /
-RUN mkdir /app/logs
+RUN mkdir -p /app/logs/mobile
+RUN mkdir -p /app/logs/site
 RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT [ "/docker-entrypoint.sh" ]

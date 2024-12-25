@@ -13,8 +13,8 @@ services:
     networks:
       - dev
     ports:
-      - "${PORT}:${PORT}"
       - "${SITE_PORT}:${SITE_PORT}"
+      - "${MOBILE_PORT}:${MOBILE_PORT}"
       - "${MONITOR_PORT}:${MONITOR_PORT}"
     environment:
       - TZ=Europe/Moscow
@@ -25,15 +25,6 @@ services:
       - ./logs:/app/logs
     profiles:
       - donotstart
-
-  #redis:
-  #  image: redis
-  #  container_name: redis
-  #  environment:
-  #    - TZ=Europe/Moscow
-  #  volumes:
-  #    - ./docker/conf/redis:/usr/local/etc/redis
-  #  command: redis-server /usr/local/etc/redis/redis.conf
 
   redis-cli:
     image: redis

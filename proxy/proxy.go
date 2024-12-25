@@ -6,45 +6,43 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/khitrov-aleksandr/proxyguard/blocker"
-	"github.com/khitrov-aleksandr/proxyguard/config"
-	"github.com/khitrov-aleksandr/proxyguard/handler"
-	"github.com/khitrov-aleksandr/proxyguard/logger"
+	"github.com/khitrov-aleksandr/proxyguard/contract"
 	"github.com/labstack/echo/v4"
 )
 
 type Proxy struct {
-	cfg *config.Config
-	s   *echo.Echo
-	h   *handler.Handler
-	rl  *logger.RequestLogger
+	port string
+	bUrl string
+	c    *echo.Echo
+	h    contract.Handler
+	l    contract.Handler
 }
 
-func New(cfg *config.Config, s *echo.Echo, blocker *blocker.RegisterBlocker) *Proxy {
+func New(port string, bUrl string, c *echo.Echo, h contract.Handler, l contract.Handler) *Proxy {
 	return &Proxy{
-		cfg: cfg,
-		s:   s,
-		h:   handler.NewHandler(blocker),
-		rl:  logger.NewRequestLogger(),
+		port: port,
+		bUrl: bUrl,
+		c:    c,
+		h:    h,
+		l:    l,
 	}
 }
 
 func (p *Proxy) Run() {
-	url, _ := url.Parse(p.cfg.BackendUrl)
+	p.c.Use(p.l.Handler)
+	p.c.Use(p.h.Handler)
+
+	url, _ := url.Parse(p.bUrl)
 	proxy := httputil.NewSingleHostReverseProxy(url)
 
 	proxy.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	p.s.Use(p.h.LogHandler)
-	p.s.Use(p.h.RegisterHandler)
-	p.s.Use(p.h.LoginHandler)
-
-	p.s.Any("/*", func(c echo.Context) error {
+	p.c.Any("/*", func(c echo.Context) error {
 		proxy.ServeHTTP(c.Response().Writer, c.Request())
 		return nil
 	})
 
-	p.s.Start(":" + p.cfg.Port)
+	p.c.Start(":" + p.port)
 }

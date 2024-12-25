@@ -21,7 +21,7 @@ const (
 )
 
 func allowSession(c []*http.Cookie, r *http.Request, rp repository.Repository) bool {
-	lg := logger.NewCustomLogger("logs/session.log")
+	lg := logger.NewCustomLogger("logs/site/session.log")
 
 	for _, cookie := range c {
 		if cookie.Name == "shop_session" {
