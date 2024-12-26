@@ -3,16 +3,19 @@ package handler
 import (
 	"net/http"
 
+	"github.com/khitrov-aleksandr/proxyguard/contract"
 	"github.com/khitrov-aleksandr/proxyguard/faker"
+	"github.com/khitrov-aleksandr/proxyguard/logger"
 	"github.com/khitrov-aleksandr/proxyguard/repository"
 	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
 	rp repository.Repository
+	lg *logger.HandlerLogger
 }
 
-func New(rp repository.Repository) *Handler {
+func New(rp repository.Repository, lg *logger.HandlerLogger) contract.Handler {
 	return &Handler{rp: rp}
 }
 
@@ -22,11 +25,11 @@ func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 		url := req.RequestURI
 
 		if url == "/api/customer/auth-sms" {
-			if !allowSession(req.Cookies(), req, h.rp) {
+			if h.denySession(req.Cookies(), req, h.rp) {
 				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
 			}
 
-			if !allowCookie(req.Cookies()) {
+			if h.denyCookie(req.Cookies()) {
 				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
 			}
 		}

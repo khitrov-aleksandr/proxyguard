@@ -7,7 +7,6 @@ import (
 	"io"
 
 	"github.com/khitrov-aleksandr/proxyguard/filter"
-	"github.com/khitrov-aleksandr/proxyguard/logger"
 	"github.com/khitrov-aleksandr/proxyguard/repository"
 	"github.com/labstack/echo/v4"
 )
@@ -39,15 +38,12 @@ func blockIpByRegister(c echo.Context, rp repository.Repository) bool {
 }
 
 func denyLogin(c echo.Context, rp repository.Repository) bool {
-	lg := logger.NewCustomLogger("logs/mobile/deny-login.log")
-
 	uri := c.Request().RequestURI
 
 	if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
 		ip := c.RealIP()
 
 		if rp.Get(getKey(ip)) == ip {
-			lg.Log(ip, "is blocked")
 			rp.Save(getKey(ip), ip, blockTime)
 			return true
 		}

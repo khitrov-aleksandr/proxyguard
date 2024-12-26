@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/khitrov-aleksandr/proxyguard/logger"
 	"github.com/khitrov-aleksandr/proxyguard/repository"
 )
 
@@ -20,9 +19,7 @@ const (
 	phoneField    = "phone"
 )
 
-func allowSession(c []*http.Cookie, r *http.Request, rp repository.Repository) bool {
-	lg := logger.NewCustomLogger("logs/site/session.log")
-
+func (h *Handler) denySession(c []*http.Cookie, r *http.Request, rp repository.Repository) bool {
 	for _, cookie := range c {
 		if cookie.Name == "shop_session" {
 			session := cookie.Value
@@ -39,8 +36,8 @@ func allowSession(c []*http.Cookie, r *http.Request, rp repository.Repository) b
 			} else {
 				if rp.Get(key) == phone {
 					if rp.Incr(sameValCountSession(session)) > sameValCount {
-						lg.Log(r.RemoteAddr, fmt.Sprintf("block as same val: session: %s phone: %s expr %d", session, phone, smallExpr))
-						return false
+						h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same val: session: %s phone: %s expr %d", session, phone, smallExpr))
+						return true
 					}
 
 					rp.Expr(sameValCountSession(session), smallExpr)
@@ -49,8 +46,8 @@ func allowSession(c []*http.Cookie, r *http.Request, rp repository.Repository) b
 						rp.Incr(sameValCountSession(session))
 						rp.Expr(sameValCountSession(session), bigExpr)
 
-						lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff val: session: %s phone: %s expr %d", session, phone, bigExpr))
-						return false
+						h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff val: session: %s phone: %s expr %d", session, phone, bigExpr))
+						return true
 					}
 
 					rp.Expr(diffValCountSession(session), bigExpr)
@@ -61,7 +58,7 @@ func allowSession(c []*http.Cookie, r *http.Request, rp repository.Repository) b
 		}
 	}
 
-	return true
+	return false
 }
 
 func getBody(r *http.Request) (rData map[string]interface{}) {

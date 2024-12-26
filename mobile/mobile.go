@@ -11,11 +11,20 @@ import (
 )
 
 func Run(cfg *config.Config, rp repository.Repository) {
-	e := echo.New()
+	aLog := logger.NewLogger("logs/mobile/all.log")
+	acLog := logger.NewLogger("logs/mobile/accepted.log")
 
-	h := handler.New(rp)
-	rl := logger.NewLogger("logs/mobile/mobile.log")
+	h := handler.New(
+		rp,
+		logger.NewHandlerLogger("logs/mobile/handle.log"),
+	)
 
-	pr := proxy.New(cfg.MobilePort, cfg.MobileBackendUrl, e, h, rl)
-	pr.Run()
+	proxy.New(
+		cfg.MobilePort,
+		cfg.MobileBackendUrl,
+		echo.New(),
+		h,
+		aLog,
+		acLog,
+	).Run()
 }

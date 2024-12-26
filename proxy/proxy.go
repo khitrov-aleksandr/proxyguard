@@ -7,30 +7,41 @@ import (
 	"net/url"
 
 	"github.com/khitrov-aleksandr/proxyguard/contract"
+	"github.com/khitrov-aleksandr/proxyguard/logger"
 	"github.com/labstack/echo/v4"
 )
 
 type Proxy struct {
-	port string
-	bUrl string
-	c    *echo.Echo
-	h    contract.Handler
-	l    contract.Handler
+	port  string
+	bUrl  string
+	c     *echo.Echo
+	h     contract.Handler
+	aLog  *logger.Logger
+	acLog *logger.Logger
 }
 
-func New(port string, bUrl string, c *echo.Echo, h contract.Handler, l contract.Handler) *Proxy {
+func New(
+	port string,
+	bUrl string,
+	c *echo.Echo,
+	h contract.Handler,
+	aLog *logger.Logger,
+	acLog *logger.Logger,
+) *Proxy {
 	return &Proxy{
-		port: port,
-		bUrl: bUrl,
-		c:    c,
-		h:    h,
-		l:    l,
+		port:  port,
+		bUrl:  bUrl,
+		c:     c,
+		h:     h,
+		aLog:  aLog,
+		acLog: acLog,
 	}
 }
 
 func (p *Proxy) Run() {
-	p.c.Use(p.l.Handler)
+	p.c.Use(p.aLog.Handler)
 	p.c.Use(p.h.Handler)
+	p.c.Use(p.acLog.Handler)
 
 	url, _ := url.Parse(p.bUrl)
 	proxy := httputil.NewSingleHostReverseProxy(url)

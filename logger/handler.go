@@ -6,21 +6,21 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type CustomLogger struct {
+type HandlerLogger struct {
 	lg zerolog.Logger
 }
 
-func NewCustomLogger(filename string) *CustomLogger {
+func NewHandlerLogger(filename string) *HandlerLogger {
 	logFile, _ := os.OpenFile(
 		filename,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 		0664,
 	)
 
-	return &CustomLogger{lg: zerolog.New(logFile)}
+	return &HandlerLogger{lg: zerolog.New(logFile)}
 }
 
-func (l *CustomLogger) Log(ip string, msg string) {
+func (l *HandlerLogger) Log(ip string, msg string) {
 	l.lg.Info().
 		Timestamp().
 		Str("ip", ip).

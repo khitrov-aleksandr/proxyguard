@@ -10,11 +10,20 @@ import (
 )
 
 func Run(cfg *config.Config, rp repository.Repository) {
-	e := echo.New()
+	aLog := logger.NewLogger("logs/site/all.log")
+	acLog := logger.NewLogger("logs/site/accepted.log")
 
-	h := handler.New(rp)
-	rl := logger.NewLogger("logs/site/site.log")
+	h := handler.New(
+		rp,
+		logger.NewHandlerLogger("logs/site/handle.log"),
+	)
 
-	pr := proxy.New(cfg.SitePort, cfg.SiteBackendUrl, e, h, rl)
-	pr.Run()
+	proxy.New(
+		cfg.SitePort,
+		cfg.SiteBackendUrl,
+		echo.New(),
+		h,
+		aLog,
+		acLog,
+	).Run()
 }
