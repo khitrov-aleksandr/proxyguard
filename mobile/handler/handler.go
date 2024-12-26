@@ -21,11 +21,11 @@ func New(rp repository.Repository, lg *logger.HandlerLogger) contract.Handler {
 
 func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if blockIpByRegister(c, h.rp) {
+		if h.blockIpByRegister(c, h.rp) {
 			return c.JSONPretty(http.StatusOK, faker.GetTokenResponse(), "")
 		}
 
-		if denyLogin(c, h.rp) {
+		if h.denyLogin(c, h.rp) {
 			return c.JSONPretty(http.StatusOK, faker.GetLoginResponse(), "")
 		}
 

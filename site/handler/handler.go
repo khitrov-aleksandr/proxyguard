@@ -16,7 +16,7 @@ type Handler struct {
 }
 
 func New(rp repository.Repository, lg *logger.HandlerLogger) contract.Handler {
-	return &Handler{rp: rp}
+	return &Handler{rp: rp, lg: lg}
 }
 
 func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
@@ -25,11 +25,11 @@ func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 		url := req.RequestURI
 
 		if url == "/api/customer/auth-sms" {
-			if h.denySession(req.Cookies(), req, h.rp) {
+			if h.denySession(c, h.rp) {
 				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
 			}
 
-			if h.denyCookie(req.Cookies()) {
+			if h.denyCookie(c) {
 				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
 			}
 		}

@@ -8,19 +8,21 @@ import (
 	"net/http"
 
 	"github.com/khitrov-aleksandr/proxyguard/repository"
+	"github.com/labstack/echo/v4"
 )
 
 const (
-	sameValCount  = 3
-	diffValCount  = 3
-	smallExpr     = 120
-	bigExpr       = 86400
-	phoneRusField = "phоne"
-	phoneField    = "phone"
+	sameValCount  int64  = 3
+	diffValCount  int64  = 3
+	smallExpr     int    = 120
+	bigExpr       int    = 86400
+	phoneRusField string = "phоne"
+	phoneField    string = "phone"
 )
 
-func (h *Handler) denySession(c []*http.Cookie, r *http.Request, rp repository.Repository) bool {
-	for _, cookie := range c {
+func (h *Handler) denySession(c echo.Context, rp repository.Repository) bool {
+	r := c.Request()
+	for _, cookie := range r.Cookies() {
 		if cookie.Name == "shop_session" {
 			session := cookie.Value
 			key := getKey(session)
@@ -36,7 +38,7 @@ func (h *Handler) denySession(c []*http.Cookie, r *http.Request, rp repository.R
 			} else {
 				if rp.Get(key) == phone {
 					if rp.Incr(sameValCountSession(session)) > sameValCount {
-						h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same val: session: %s phone: %s expr %d", session, phone, smallExpr))
+						h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same val: session: %s phone: %s, expr: %d", session, phone, smallExpr))
 						return true
 					}
 
@@ -46,7 +48,7 @@ func (h *Handler) denySession(c []*http.Cookie, r *http.Request, rp repository.R
 						rp.Incr(sameValCountSession(session))
 						rp.Expr(sameValCountSession(session), bigExpr)
 
-						h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff val: session: %s phone: %s expr %d", session, phone, bigExpr))
+						h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff val: session: %s phone: %s, expr: %d", session, phone, bigExpr))
 						return true
 					}
 

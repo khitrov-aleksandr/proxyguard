@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	blockTime = 86400
+	blockTime int = 86400
 )
 
-func blockIpByRegister(c echo.Context, rp repository.Repository) bool {
+func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bool {
 	r := c.Request()
 	uri := r.RequestURI
 
@@ -30,6 +30,8 @@ func blockIpByRegister(c echo.Context, rp repository.Repository) bool {
 		if filter.BlockByEmail(requestData["EmailAddress"].(string)) {
 			ip := c.RealIP()
 			rp.Save(getKey(ip), ip, blockTime)
+
+			h.lg.Log(ip, fmt.Sprintf("block by email: %s", requestData["EmailAddress"].(string)))
 			return true
 		}
 	}
@@ -37,7 +39,7 @@ func blockIpByRegister(c echo.Context, rp repository.Repository) bool {
 	return false
 }
 
-func denyLogin(c echo.Context, rp repository.Repository) bool {
+func (h *Handler) denyLogin(c echo.Context, rp repository.Repository) bool {
 	uri := c.Request().RequestURI
 
 	if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
@@ -45,6 +47,8 @@ func denyLogin(c echo.Context, rp repository.Repository) bool {
 
 		if rp.Get(getKey(ip)) == ip {
 			rp.Save(getKey(ip), ip, blockTime)
+
+			h.lg.Log(ip, fmt.Sprintf("deny login by ip, expr: %d", blockTime))
 			return true
 		}
 	}
