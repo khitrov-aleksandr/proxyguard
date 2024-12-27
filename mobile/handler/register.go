@@ -97,9 +97,11 @@ func (h *Handler) denyLogin(c echo.Context, rp repository.Repository) bool {
 
 		phone := requestData["phone"].(string)
 
-		if rp.Incr(getAuthPhoneKey(phone)) > authCount {
+		curAuthCount := rp.Incr(getAuthPhoneKey(phone))
+		rp.Expr(getAuthPhoneKey(phone), authPhoneBlockTime)
+
+		if curAuthCount > authCount {
 			h.lg.Log(ip, fmt.Sprintf("deny login by phone: phone: %s, expr: %d", phone, authPhoneBlockTime))
-			rp.Expr(getAuthPhoneKey(phone), authPhoneBlockTime)
 			return true
 		}
 	}
