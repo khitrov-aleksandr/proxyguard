@@ -15,7 +15,7 @@ import (
 const (
 	sameValCount       int64 = 2
 	diffValCount       int64 = 2
-	authCount          int64 = 2
+	authCount          int64 = 1
 	blockTime          int   = 86400
 	phoneBlockTime     int   = 300
 	authPhoneBlockTime int   = 60
