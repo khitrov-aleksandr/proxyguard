@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	blockTime int = 86400
+	blockTime      int = 86400
+	phoneBlockTime int = 86400
 )
 
 func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bool {
@@ -27,11 +28,19 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 
 		r.Body = io.NopCloser(bytes.NewBuffer(b))
 
-		if filter.BlockByEmail(requestData["EmailAddress"].(string)) {
+		email := requestData["EmailAddress"].(string)
+		phone := requestData["MobilePhone"].(string)
+
+		if filter.BlockByEmail(email) {
 			ip := c.RealIP()
+
 			rp.Save(getKey(ip), ip, blockTime)
 
-			h.lg.Log(ip, fmt.Sprintf("block by email: %s", requestData["EmailAddress"].(string)))
+			rp.Save(getPhoneKey(phone), phone, phoneBlockTime)
+			rp.Incr(getPhoneCountKey(phone))
+			rp.Expr(getPhoneCountKey(phone), phoneBlockTime)
+
+			h.lg.Log(ip, fmt.Sprintf("block by email: %s", email))
 			return true
 		}
 	}
@@ -58,4 +67,12 @@ func (h *Handler) denyLogin(c echo.Context, rp repository.Repository) bool {
 
 func getKey(ip string) string {
 	return fmt.Sprintf("reg_block:%s", ip)
+}
+
+func getPhoneKey(phone string) string {
+	return fmt.Sprintf("reg_phone:%s", phone)
+}
+
+func getPhoneCountKey(phone string) string {
+	return fmt.Sprintf("reg_phone:count:%s", phone)
 }
