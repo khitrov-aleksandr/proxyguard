@@ -14,10 +14,10 @@ import (
 
 const (
 	sameValCount       int64 = 2
-	diffValCount       int64 = 2
+	diffValCount       int64 = 1
 	authCount          int64 = 1
 	blockTime          int   = 86400
-	phoneBlockTime     int   = 300
+	phoneBlockTime     int   = 1800
 	authPhoneBlockTime int   = 60
 )
 
@@ -54,14 +54,14 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 			rp.Save(getPhoneKey(phone), email, phoneBlockTime)
 		} else {
 			if rp.Get(getPhoneKey(phone)) != email {
-				if rp.Incr(getPhoneDiffValKey(phone)) >= diffValCount {
+				if rp.Incr(getPhoneDiffValKey(phone)) > diffValCount {
 					h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
 					return true
 				}
 
 				rp.Expr(getPhoneDiffValKey(phone), phoneBlockTime)
 			} else {
-				if rp.Incr(getPhoneSameValKey(phone)) >= sameValCount {
+				if rp.Incr(getPhoneSameValKey(phone)) > sameValCount {
 					h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
 					return true
 				}
