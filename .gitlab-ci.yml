@@ -37,7 +37,10 @@ default:
       --network $NETWORK
       --restart unless-stopped
       -p $SITE_PORT:$SITE_PORT
-      -p $MOBILE_PORT:$MOBILE_PORT
+      -p $MOBILE_PORT_OZ:$MOBILE_PORT_OZ
+      -p $MOBILE_PORT_SF:$MOBILE_PORT_SF
+      -p $MOBILE_PORT_SA:$MOBILE_PORT_SA
+      -p $MOBILE_PORT_ST:$MOBILE_PORT_ST
       -p $MONITOR_PORT:$MONITOR_PORT
       --name proxyguard $TAG_COMMIT
 
