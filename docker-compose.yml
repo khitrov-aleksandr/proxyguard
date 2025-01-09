@@ -14,7 +14,10 @@ services:
       - dev
     ports:
       - "${SITE_PORT}:${SITE_PORT}"
-      - "${MOBILE_PORT}:${MOBILE_PORT}"
+      - "${MOBILE_PORT_OZ}:${MOBILE_PORT_OZ}"
+      - "${MOBILE_PORT_SF}:${MOBILE_PORT_SF}"
+      - "${MOBILE_PORT_SA}:${MOBILE_PORT_SA}"
+      - "${MOBILE_PORT_ST}:${MOBILE_PORT_ST}"
       - "${MONITOR_PORT}:${MONITOR_PORT}"
     environment:
       - TZ=Europe/Moscow
