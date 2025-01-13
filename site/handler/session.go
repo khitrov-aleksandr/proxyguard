@@ -38,7 +38,7 @@ func (h *Handler) denySession(c echo.Context, rp repository.Repository) bool {
 			} else {
 				if rp.Get(key) == phone {
 					if rp.Incr(sameValCountSession(session)) > sameValCount {
-						rp.Expr(sameValCountSession(session), smallExpr
+						rp.Expr(sameValCountSession(session), smallExpr)
 						h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same val: session: %s phone: %s, expr: %d", session, phone, smallExpr))
 						return true
 					}
@@ -48,7 +48,7 @@ func (h *Handler) denySession(c echo.Context, rp repository.Repository) bool {
 					if rp.Incr(diffValCountSession(session)) > diffValCount {
 						rp.Incr(sameValCountSession(session))
 						rp.Expr(sameValCountSession(session), bigExpr)
-						
+
 						rp.Expr(diffValCountSession(session), bigExpr)
 
 						h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff val: session: %s phone: %s, expr: %d", session, phone, bigExpr))
