@@ -55,6 +55,7 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 		} else {
 			if rp.Get(getPhoneKey(phone)) != email {
 				if rp.Incr(getPhoneDiffValKey(phone)) > diffValCount {
+					rp.Expr(getPhoneDiffValKey(phone), phoneBlockTime)
 					h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
 					return true
 				}
@@ -62,6 +63,7 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 				rp.Expr(getPhoneDiffValKey(phone), phoneBlockTime)
 			} else {
 				if rp.Incr(getPhoneSameValKey(phone)) > sameValCount {
+					rp.Expr(getPhoneSameValKey(phone), phoneBlockTime)
 					h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
 					return true
 				}
