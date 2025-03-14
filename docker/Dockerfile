@@ -3,6 +3,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG APP_USER_ID
 WORKDIR /app
 COPY . .
+RUN export HTTPS_PROXY=http://node02.summeronsnow.ru:14789/ && go mod download
 RUN go mod download
 RUN useradd -m -s /bin/bash -u$APP_USER_ID app
 RUN chown -R app\: .
