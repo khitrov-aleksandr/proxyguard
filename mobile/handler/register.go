@@ -106,6 +106,11 @@ func (h *Handler) denyLogin(c echo.Context, rp repository.Repository) bool {
 			h.lg.Log(ip, fmt.Sprintf("deny login by phone: phone: %s, expr: %d", phone, authPhoneBlockTime))
 			return true
 		}
+
+		if h.denyHeader(c) {
+			h.lg.Log(ip, fmt.Sprintf("deny login by header: phone: %s", phone))
+			return true
+		}
 	}
 
 	return false

@@ -1,5 +1,5 @@
 # ProxyGuard
 ## Запуск для разработки
 ```bash
-docker compose run --service-ports --build cli
+docker compose run --rm --service-ports --build cli
 ```
