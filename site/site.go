@@ -10,8 +10,8 @@ import (
 )
 
 func Run(cfg *config.Config, rp repository.Repository) {
-	aLog := logger.NewLogger("logs/site/all.log")
-	acLog := logger.NewLogger("logs/site/accepted.log")
+	//aLog := logger.NewLogger("logs/site/all.log")
+	//acLog := logger.NewLogger("logs/site/accepted.log")
 
 	h := handler.New(
 		rp,
@@ -23,7 +23,7 @@ func Run(cfg *config.Config, rp repository.Repository) {
 		cfg.SiteBackendUrl,
 		echo.New(),
 		h,
-		aLog,
-		acLog,
+		//aLog,
+		//acLog,
 	).Run()
 }

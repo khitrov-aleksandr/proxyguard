@@ -3,6 +3,7 @@ package logger
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 
@@ -16,11 +17,15 @@ type Logger struct {
 }
 
 func NewLogger(filename string) *Logger {
-	logFile, _ := os.OpenFile(
+	logFile, err := os.OpenFile(
 		filename,
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 		0664,
 	)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return &Logger{lg: zerolog.New(logFile), filename: filename}
 }

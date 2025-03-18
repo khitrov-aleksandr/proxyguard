@@ -18,8 +18,8 @@ func Run(cfg *config.Config, rp repository.Repository) {
 }
 
 func runOz(cfg *config.Config, rp repository.Repository) {
-	aLog := logger.NewLogger("logs/mobile/all-oz.log")
-	acLog := logger.NewLogger("logs/mobile/accepted-oz.log")
+	//aLog := logger.NewLogger("logs/mobile/all-oz.log")
+	//acLog := logger.NewLogger("logs/mobile/accepted-oz.log")
 
 	h := handler.New(
 		rp,
@@ -31,14 +31,14 @@ func runOz(cfg *config.Config, rp repository.Repository) {
 		cfg.MobileBackendUrlOz,
 		echo.New(),
 		h,
-		aLog,
-		acLog,
+		//aLog,
+		//acLog,
 	).Run()
 }
 
 func runSf(cfg *config.Config, rp repository.Repository) {
-	aLog := logger.NewLogger("logs/mobile/all-sf.log")
-	acLog := logger.NewLogger("logs/mobile/accepted-sf.log")
+	//aLog := logger.NewLogger("../logs/mobile/all-sf.log")
+	//acLog := logger.NewLogger("../logs/mobile/accepted-sf.log")
 
 	h := handler.New(
 		rp,
@@ -50,18 +50,18 @@ func runSf(cfg *config.Config, rp repository.Repository) {
 		cfg.MobileBackendUrlSf,
 		echo.New(),
 		h,
-		aLog,
-		acLog,
+		//aLog,
+		//acLog,
 	).Run()
 }
 
 func runSa(cfg *config.Config, rp repository.Repository) {
-	aLog := logger.NewLogger("logs/mobile/all-sa.log")
-	acLog := logger.NewLogger("logs/mobile/accepted-sa.log")
+	//aLog := logger.NewLogger("logs/mobile/all-sa.log")
+	//acLog := logger.NewLogger("logs/mobile/accepted-sa.log")
 
 	h := handler.New(
 		rp,
-		logger.NewHandlerLogger("logs/mobile/handle-sa.log"),
+		logger.NewHandlerLogger("../logs/mobile/handle-sa.log"),
 	)
 
 	proxy.New(
@@ -69,14 +69,14 @@ func runSa(cfg *config.Config, rp repository.Repository) {
 		cfg.MobileBackendUrlSa,
 		echo.New(),
 		h,
-		aLog,
-		acLog,
+		//aLog,
+		//acLog,
 	).Run()
 }
 
 func runSt(cfg *config.Config, rp repository.Repository) {
-	aLog := logger.NewLogger("logs/mobile/all-st.log")
-	acLog := logger.NewLogger("logs/mobile/accepted-st.log")
+	//aLog := logger.NewLogger("logs/mobile/all-st.log")
+	//acLog := logger.NewLogger("logs/mobile/accepted-st.log")
 
 	h := handler.New(
 		rp,
@@ -88,7 +88,7 @@ func runSt(cfg *config.Config, rp repository.Repository) {
 		cfg.MobileBackendUrlSt,
 		echo.New(),
 		h,
-		aLog,
-		acLog,
+		//aLog,
+		//acLog,
 	).Run()
 }
