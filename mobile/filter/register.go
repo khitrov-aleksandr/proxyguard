@@ -1,15 +1,15 @@
-package handler
+package filter
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/khitrov-aleksandr/proxyguard/filter"
 	"github.com/khitrov-aleksandr/proxyguard/repository"
-	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -21,8 +21,7 @@ const (
 	authPhoneBlockTime int   = 60
 )
 
-func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bool {
-	r := c.Request()
+func (f *Filter) blockIpByRegister(r *http.Request, rp repository.Repository) bool {
 	uri := r.RequestURI
 
 	if uri == "/api/v8/manzana/registration" || uri == "/mirror/manzana/registration" {
@@ -39,14 +38,14 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 		phone = strings.ReplaceAll(phone, "+", "")
 
 		if filter.BlockByEmail(email) {
-			ip := c.RealIP()
+			ip := r.RemoteAddr
 
 			rp.Save(getKey(ip), ip, blockTime)
 
 			rp.Save(getAuthPhoneKey(phone), 999, authPhoneBlockTime)
 			rp.Expr(getAuthPhoneKey(phone), phoneBlockTime)
 
-			h.lg.Log(ip, fmt.Sprintf("block by email: %s", email))
+			f.lg.Log(ip, fmt.Sprintf("block by email: %s", email))
 			return true
 		}
 
@@ -56,7 +55,7 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 			if rp.Get(getPhoneKey(phone)) != email {
 				if rp.Incr(getPhoneDiffValKey(phone)) > diffValCount {
 					rp.Expr(getPhoneDiffValKey(phone), phoneBlockTime)
-					h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
+					f.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
 					return true
 				}
 
@@ -64,7 +63,7 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 			} else {
 				if rp.Incr(getPhoneSameValKey(phone)) > sameValCount {
 					rp.Expr(getPhoneSameValKey(phone), phoneBlockTime)
-					h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
+					f.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
 					return true
 				}
 
@@ -76,26 +75,25 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 	return false
 }
 
-func (h *Handler) denyLogin(c echo.Context, rp repository.Repository) bool {
-	req := c.Request()
-	uri := req.RequestURI
+func (f *Filter) denyLogin(r *http.Request, rp repository.Repository) bool {
+	uri := r.RequestURI
 
 	if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
-		ip := c.RealIP()
+		ip := r.RemoteAddr
 
 		if rp.Get(getKey(ip)) == ip {
 			rp.Save(getKey(ip), ip, blockTime)
 
-			h.lg.Log(ip, fmt.Sprintf("deny login by ip, expr: %d", blockTime))
+			f.lg.Log(ip, fmt.Sprintf("deny login by ip, expr: %d", blockTime))
 			return true
 		}
 
 		requestData := make(map[string]interface{})
 
-		b, _ := io.ReadAll(req.Body)
+		b, _ := io.ReadAll(r.Body)
 		json.Unmarshal(b, &requestData)
 
-		req.Body = io.NopCloser(bytes.NewBuffer(b))
+		r.Body = io.NopCloser(bytes.NewBuffer(b))
 
 		phone := requestData["phone"].(string)
 
@@ -103,12 +101,12 @@ func (h *Handler) denyLogin(c echo.Context, rp repository.Repository) bool {
 		rp.Expr(getAuthPhoneKey(phone), authPhoneBlockTime)
 
 		if curAuthCount > authCount {
-			h.lg.Log(ip, fmt.Sprintf("deny login by phone: phone: %s, expr: %d", phone, authPhoneBlockTime))
+			f.lg.Log(ip, fmt.Sprintf("deny login by phone: phone: %s, expr: %d", phone, authPhoneBlockTime))
 			return true
 		}
 
-		if h.denyHeader(c) {
-			h.lg.Log(ip, fmt.Sprintf("deny login by header: phone: %s", phone))
+		if f.denyHeader(r) {
+			f.lg.Log(ip, fmt.Sprintf("deny login by header: phone: %s", phone))
 			return true
 		}
 	}

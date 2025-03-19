@@ -1,4 +1,4 @@
-package handler
+package filter
 
 import (
 	"bytes"
@@ -7,13 +7,10 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/khitrov-aleksandr/proxyguard/contract"
-	"github.com/khitrov-aleksandr/proxyguard/faker"
 	"github.com/khitrov-aleksandr/proxyguard/filter"
 	"github.com/khitrov-aleksandr/proxyguard/filter/base"
 	"github.com/khitrov-aleksandr/proxyguard/logger"
 	"github.com/khitrov-aleksandr/proxyguard/repository"
-	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -24,41 +21,39 @@ const (
 	bigExpr        int    = 86400
 )
 
-type Handler struct {
+type Filter struct {
 	rp repository.Repository
 	lg *logger.HandlerLogger
 }
 
-func New(rp repository.Repository, lg *logger.HandlerLogger) contract.Handler {
-	return &Handler{rp: rp, lg: lg}
+func New(rp repository.Repository, lg *logger.HandlerLogger) *Filter {
+	return &Filter{rp: rp, lg: lg}
 }
 
-func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		req := c.Request()
-		url := req.RequestURI
-
-		prl := filter.NewPhonesRateLimiter(base.NewRateLimiter(h.rp))
+func (f *Filter) Handle(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		url := r.RequestURI
+		prl := filter.NewPhonesRateLimiter(base.NewRateLimiter(f.rp))
 
 		if url == "/api/customer/auth-sms" {
-			phone := getPhone(getBody(req))
+			phone := getPhone(getBody(r))
 
 			if !prl.Allow(phone, countSmallExpr, smallExpr) {
-				h.lg.Log(req.RemoteAddr, fmt.Sprintf("block by phone rate limit: phone: %s, count: %d, expr: %d", phone, countSmallExpr, smallExpr))
-				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
+				f.lg.Log(r.RemoteAddr, fmt.Sprintf("block by phone rate limit: phone: %s, count: %d, expr: %d", phone, countSmallExpr, smallExpr))
+				//return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
 			}
 
-			if h.denySession(c, h.rp) {
-				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
+			if f.denySession(r, f.rp) {
+				//return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
 			}
 
-			if h.denyCookie(c) {
-				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
+			if f.denyCookie(r) {
+				//return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
 			}
 		}
 
-		return next(c)
-	}
+		//return next(c)
+	})
 }
 
 func getPhone(rData map[string]interface{}) string {
