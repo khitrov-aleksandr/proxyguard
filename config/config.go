@@ -23,14 +23,8 @@ type Config struct {
 }
 
 func New() *Config {
-	//env := os.Getenv()
-	//fmt.Println(env)
-	/*env := os.Getenv("FOO_ENV")
-	if "" == env {
-	  env = "development"
-	}*/
-
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
+	//err := godotenv.Load()
 
 	if err != nil {
 		log.Fatalf("Error loading .env file %v", err)

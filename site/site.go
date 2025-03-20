@@ -9,9 +9,6 @@ import (
 )
 
 func Run(cfg *config.Config, rp repository.Repository) {
-	//aLog := logger.NewLogger("logs/site/all.log")
-	//acLog := logger.NewLogger("logs/site/accepted.log")
-
 	f := filter.New(
 		rp,
 		logger.NewHandlerLogger("logs/site/handle.log"),
@@ -21,7 +18,5 @@ func Run(cfg *config.Config, rp repository.Repository) {
 		cfg.SitePort,
 		cfg.SiteBackendUrl,
 		f.Handle,
-		//aLog,
-		//acLog,
 	).Run()
 }

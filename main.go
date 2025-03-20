@@ -14,11 +14,11 @@ import (
 func main() {
 	cfg := config.New()
 
-	repository := repository.NewRedisRepository(redis.NewClient(&redis.Options{
+	rp := repository.NewRedisRepository(redis.NewClient(&redis.Options{
 		Addr: cfg.RedisAddr,
 	}), context.Background())
 
-	go site.Run(cfg, repository)
-	go mobile.Run(cfg, repository)
+	go site.Run(cfg, rp)
+	go mobile.Run(cfg, rp)
 	monitor.Run(cfg)
 }

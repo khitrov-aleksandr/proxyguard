@@ -16,9 +16,6 @@ func Run(cfg *config.Config, rp repository.Repository) {
 }
 
 func runOz(cfg *config.Config, rp repository.Repository) {
-	//aLog := logger.NewLogger("logs/mobile/all-oz.log")
-	//acLog := logger.NewLogger("logs/mobile/accepted-oz.log")
-
 	f := filter.New(
 		rp,
 		logger.NewHandlerLogger("logs/mobile/handle-oz.log"),
@@ -28,15 +25,10 @@ func runOz(cfg *config.Config, rp repository.Repository) {
 		cfg.MobilePortOz,
 		cfg.MobileBackendUrlOz,
 		f.Handle,
-		//aLog,
-		//acLog,
 	).Run()
 }
 
 func runSf(cfg *config.Config, rp repository.Repository) {
-	//aLog := logger.NewLogger("../logs/mobile/all-sf.log")
-	//acLog := logger.NewLogger("../logs/mobile/accepted-sf.log")
-
 	f := filter.New(
 		rp,
 		logger.NewHandlerLogger("logs/mobile/handle-sf.log"),
@@ -46,15 +38,10 @@ func runSf(cfg *config.Config, rp repository.Repository) {
 		cfg.MobilePortSf,
 		cfg.MobileBackendUrlSf,
 		f.Handle,
-		//aLog,
-		//acLog,
 	).Run()
 }
 
 func runSa(cfg *config.Config, rp repository.Repository) {
-	//aLog := logger.NewLogger("logs/mobile/all-sa.log")
-	//acLog := logger.NewLogger("logs/mobile/accepted-sa.log")
-
 	f := filter.New(
 		rp,
 		logger.NewHandlerLogger("../logs/mobile/handle-sa.log"),
@@ -64,15 +51,10 @@ func runSa(cfg *config.Config, rp repository.Repository) {
 		cfg.MobilePortSa,
 		cfg.MobileBackendUrlSa,
 		f.Handle,
-		//aLog,
-		//acLog,
 	).Run()
 }
 
 func runSt(cfg *config.Config, rp repository.Repository) {
-	//aLog := logger.NewLogger("logs/mobile/all-st.log")
-	//acLog := logger.NewLogger("logs/mobile/accepted-st.log")
-
 	f := filter.New(
 		rp,
 		logger.NewHandlerLogger("logs/mobile/handle-st.log"),
@@ -82,7 +64,5 @@ func runSt(cfg *config.Config, rp repository.Repository) {
 		cfg.MobilePortSt,
 		cfg.MobileBackendUrlSt,
 		f.Handle,
-		//aLog,
-		//acLog,
 	).Run()
 }

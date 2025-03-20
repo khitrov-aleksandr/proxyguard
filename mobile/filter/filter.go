@@ -2,7 +2,6 @@ package filter
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/khitrov-aleksandr/proxyguard/faker"
@@ -28,28 +27,12 @@ func (f *Filter) Handle(next http.Handler) http.Handler {
 		}
 
 		if f.denyLogin(r, f.rp) {
-			fmt.Println("denyLogin")
 			JSONResponse(w, faker.GetLoginResponse(), http.StatusOK)
 			return
-			//fmt.Println("denyLogin1")
 		}
 
 		next.ServeHTTP(w, r)
 	})
-
-	/*
-		return func(c echo.Context) error {
-			if h.blockIpByRegister(c, h.rp) {
-				return c.JSONPretty(http.StatusOK, faker.GetTokenResponse(), "")
-			}
-
-			if h.denyLogin(c, h.rp) {
-				return c.JSONPretty(http.StatusOK, faker.GetLoginResponse(), "")
-			}
-
-			return next(c)
-		}
-	*/
 }
 
 func JSONResponse(w http.ResponseWriter, d any, code int) {
