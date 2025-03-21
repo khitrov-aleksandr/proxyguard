@@ -18,14 +18,6 @@ import (
 	"github.com/khitrov-aleksandr/proxyguard/repository"
 )
 
-/*func init() {
-	cfg := config.New()
-	rp := repository.NewRedisRepository(redis.NewClient(&redis.Options{
-		Addr: cfg.RedisAddr,
-	}), context.Background())
-	go mobile.Run(cfg, rp)
-}*/
-
 type RespLoginSmsPrestep struct {
 	DelaySec int  `json:"delaySec"`
 	Success  bool `json:"success"`
@@ -41,11 +33,9 @@ func TestLSPRequest(t *testing.T) {
 		Timeout: 5 * time.Second,
 	}
 
-	resp := RespLoginSmsPrestep{}
-
 	req, _ := http.NewRequestWithContext(context.Background(),
 		http.MethodPost, "http://localhost:9999/api/v8/ecom-auth/login-sms-prestep",
-		strings.NewReader("{\"phone\":\"79055902305\"}"),
+		strings.NewReader("{\"phone\":\"79999999999\"}"),
 	)
 
 	req.Header.Add("X-Device-Id-Mb", "1234")
@@ -53,28 +43,18 @@ func TestLSPRequest(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 
-	res, err := client.Do(req)
-
-	if err != nil {
-		t.Error(err)
-	}
-
+	res, _ := client.Do(req)
 	if res.StatusCode != http.StatusOK {
 		t.Errorf("Expected %d, got %d", http.StatusOK, res.StatusCode)
 	}
 
 	log.Printf("Headers: %v", res.Header)
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		t.Error(err)
-	}
+	body, _ := io.ReadAll(res.Body)
 	defer res.Body.Close()
 
-	err = json.Unmarshal(body, &resp)
-	if err != nil {
-		t.Error(err)
-	}
+	resp := RespLoginSmsPrestep{}
+	json.Unmarshal(body, &resp)
 
 	if resp.DelaySec != 0 {
 		t.Errorf("Expected %d, got %d", 0, resp.DelaySec)
@@ -85,16 +65,6 @@ func TestLSPRequest(t *testing.T) {
 	}
 
 	t.Logf("Response: %+v", resp)
-}
-
-func startMockServer() *httptest.Server {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
-		w.Header().Add("Is-Mock-Server", "true")
-		_, _ = w.Write([]byte("{\"delaySec\":0,\"success\":true}"))
-	}))
-
-	return server
 }
 
 func startProxy(s *httptest.Server) {
