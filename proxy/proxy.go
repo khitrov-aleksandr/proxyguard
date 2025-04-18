@@ -15,7 +15,7 @@ type Proxy struct {
 	h    func(http.Handler) http.Handler
 }
 
-func New(
+func NewProxy(
 	port string,
 	bUrl string,
 	h func(http.Handler) http.Handler,

@@ -1,14 +1,13 @@
-package mobile
+package proxy
 
 import (
 	"github.com/khitrov-aleksandr/proxyguard/config"
 	"github.com/khitrov-aleksandr/proxyguard/logger"
 	"github.com/khitrov-aleksandr/proxyguard/mobile/filter"
-	"github.com/khitrov-aleksandr/proxyguard/proxy"
 	"github.com/khitrov-aleksandr/proxyguard/repository"
 )
 
-func Run(cfg *config.Config, rp repository.Repository) {
+func RunMobile(cfg *config.Config, rp repository.Repository) {
 	go runOz(cfg, rp)
 	go runSf(cfg, rp)
 	go runSa(cfg, rp)
@@ -21,7 +20,7 @@ func runOz(cfg *config.Config, rp repository.Repository) {
 		logger.NewHandlerLogger("logs/mobile/handle-oz.log"),
 	)
 
-	proxy.New(
+	NewProxy(
 		cfg.MobilePortOz,
 		cfg.MobileBackendUrlOz,
 		f.Handle,
@@ -34,7 +33,7 @@ func runSf(cfg *config.Config, rp repository.Repository) {
 		logger.NewHandlerLogger("logs/mobile/handle-sf.log"),
 	)
 
-	proxy.New(
+	NewProxy(
 		cfg.MobilePortSf,
 		cfg.MobileBackendUrlSf,
 		f.Handle,
@@ -47,7 +46,7 @@ func runSa(cfg *config.Config, rp repository.Repository) {
 		logger.NewHandlerLogger("../logs/mobile/handle-sa.log"),
 	)
 
-	proxy.New(
+	NewProxy(
 		cfg.MobilePortSa,
 		cfg.MobileBackendUrlSa,
 		f.Handle,
@@ -60,7 +59,7 @@ func runSt(cfg *config.Config, rp repository.Repository) {
 		logger.NewHandlerLogger("logs/mobile/handle-st.log"),
 	)
 
-	proxy.New(
+	NewProxy(
 		cfg.MobilePortSt,
 		cfg.MobileBackendUrlSt,
 		f.Handle,
