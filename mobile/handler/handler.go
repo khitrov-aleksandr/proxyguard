@@ -21,12 +21,20 @@ func New(rp repository.Repository, lg *logger.HandlerLogger) contract.Handler {
 
 func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if h.blockIpByRegister(c, h.rp) {
-			return c.JSONPretty(http.StatusOK, faker.GetTokenResponse(), "")
+		h.saveTraffic(c, h.rp)
+
+		uri := c.Request().RequestURI
+
+		if uri == "/api/v8/manzana/registration" || uri == "/mirror/manzana/registration" {
+			if !h.allowById(c, h.rp) || h.blockIpByRegister(c, h.rp) {
+				return c.JSONPretty(http.StatusOK, faker.GetTokenResponse(), "")
+			}
 		}
 
-		if h.denyLogin(c, h.rp) {
-			return c.JSONPretty(http.StatusOK, faker.GetLoginResponse(), "")
+		if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
+			if !h.allowById(c, h.rp) || h.denyLogin(c, h.rp) {
+				return c.JSONPretty(http.StatusOK, faker.GetLoginResponse(), "")
+			}
 		}
 
 		return next(c)

@@ -7,11 +7,10 @@ services:
       args:
         APP_USER_ID: "${APP_USER_ID}"
     user: "${APP_USER_ID}"
+    container_name: cli-${USER}
     working_dir: /app
     stdin_open: true
     tty: true
-    networks:
-      - dev
     ports:
       - "${SITE_PORT}:${SITE_PORT}"
       - "${MOBILE_PORT_OZ}:${MOBILE_PORT_OZ}"
@@ -26,14 +25,21 @@ services:
       - home_cli_data:/home/cli
       - .:/app
       - ./logs:/app/logs
-    profiles:
-      - donotstart
+    #profiles:
+    #  - donotstart
+
+  redis:
+    image: redis
+    hostname: redis-${USER}
+    container_name: redis-${USER}
+    environment:
+      - TZ=Europe/Moscow
+    command: redis-server --save 60 1 --loglevel warning
 
   redis-cli:
     image: redis
-    command: redis-cli -h redis-dev
-    networks:
-      - dev
+    container_name: redis-cli-${USER}
+    command: redis-cli -h redis-${USER}
     environment:
       - TZ=Europe/Moscow
     profiles:
