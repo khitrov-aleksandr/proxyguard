@@ -41,7 +41,7 @@ func New(
 func (p *Proxy) Run() {
 	p.c.Use(p.aLog.Handler)
 	p.c.Use(p.h.Handler)
-	p.c.Use(p.acLog.Handler)
+	p.c.Use(p.acLog.AcceptedHandler)
 
 	url, _ := url.Parse(p.bUrl)
 	proxy := httputil.NewSingleHostReverseProxy(url)
