@@ -23,53 +23,50 @@ const (
 
 func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bool {
 	r := c.Request()
-	uri := r.RequestURI
 
-	if uri == "/api/v8/manzana/registration" || uri == "/mirror/manzana/registration" {
-		requestData := make(map[string]interface{})
+	requestData := make(map[string]interface{})
 
-		b, _ := io.ReadAll(r.Body)
-		json.Unmarshal(b, &requestData)
+	b, _ := io.ReadAll(r.Body)
+	json.Unmarshal(b, &requestData)
 
-		r.Body = io.NopCloser(bytes.NewBuffer(b))
+	r.Body = io.NopCloser(bytes.NewBuffer(b))
 
-		email := requestData["EmailAddress"].(string)
-		phone := requestData["MobilePhone"].(string)
+	email := requestData["EmailAddress"].(string)
+	phone := requestData["MobilePhone"].(string)
 
-		phone = strings.ReplaceAll(phone, "+", "")
+	phone = strings.ReplaceAll(phone, "+", "")
 
-		if filter.BlockByEmail(email) {
-			ip := c.RealIP()
+	if filter.BlockByEmail(email) {
+		ip := c.RealIP()
 
-			rp.Save(getKey(ip), ip, blockTime)
+		rp.Save(getKey(ip), ip, blockTime)
 
-			rp.Save(getAuthPhoneKey(phone), 999, authPhoneBlockTime)
-			rp.Expr(getAuthPhoneKey(phone), phoneBlockTime)
+		rp.Save(getAuthPhoneKey(phone), 999, authPhoneBlockTime)
+		rp.Expr(getAuthPhoneKey(phone), phoneBlockTime)
 
-			h.lg.Log(ip, fmt.Sprintf("block by email: %s", email))
-			return true
-		}
+		h.lg.Log(ip, fmt.Sprintf("block by email: %s", email))
+		return true
+	}
 
-		if rp.Get(getPhoneKey(phone)) == "" {
-			rp.Save(getPhoneKey(phone), email, phoneBlockTime)
-		} else {
-			if rp.Get(getPhoneKey(phone)) != email {
-				if rp.Incr(getPhoneDiffValKey(phone)) > diffValCount {
-					rp.Expr(getPhoneDiffValKey(phone), phoneBlockTime)
-					h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
-					return true
-				}
-
+	if rp.Get(getPhoneKey(phone)) == "" {
+		rp.Save(getPhoneKey(phone), email, phoneBlockTime)
+	} else {
+		if rp.Get(getPhoneKey(phone)) != email {
+			if rp.Incr(getPhoneDiffValKey(phone)) > diffValCount {
 				rp.Expr(getPhoneDiffValKey(phone), phoneBlockTime)
-			} else {
-				if rp.Incr(getPhoneSameValKey(phone)) > sameValCount {
-					rp.Expr(getPhoneSameValKey(phone), phoneBlockTime)
-					h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
-					return true
-				}
-
-				rp.Expr(getPhoneSameValKey(phone), phoneBlockTime)
+				h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as diff email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
+				return true
 			}
+
+			rp.Expr(getPhoneDiffValKey(phone), phoneBlockTime)
+		} else {
+			if rp.Incr(getPhoneSameValKey(phone)) > sameValCount {
+				rp.Expr(getPhoneSameValKey(phone), phoneBlockTime)
+				h.lg.Log(r.RemoteAddr, fmt.Sprintf("block as same email by phone: phone: %s, expr: %d", phone, phoneBlockTime))
+				return true
+			}
+
+			rp.Expr(getPhoneSameValKey(phone), phoneBlockTime)
 		}
 	}
 
@@ -78,39 +75,35 @@ func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bo
 
 func (h *Handler) denyLogin(c echo.Context, rp repository.Repository) bool {
 	req := c.Request()
-	uri := req.RequestURI
+	ip := c.RealIP()
 
-	if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
-		ip := c.RealIP()
+	if rp.Get(getKey(ip)) == ip {
+		rp.Save(getKey(ip), ip, blockTime)
 
-		if rp.Get(getKey(ip)) == ip {
-			rp.Save(getKey(ip), ip, blockTime)
+		h.lg.Log(ip, fmt.Sprintf("deny login by ip, expr: %d", blockTime))
+		return true
+	}
 
-			h.lg.Log(ip, fmt.Sprintf("deny login by ip, expr: %d", blockTime))
-			return true
-		}
+	requestData := make(map[string]interface{})
 
-		requestData := make(map[string]interface{})
+	b, _ := io.ReadAll(req.Body)
+	json.Unmarshal(b, &requestData)
 
-		b, _ := io.ReadAll(req.Body)
-		json.Unmarshal(b, &requestData)
+	req.Body = io.NopCloser(bytes.NewBuffer(b))
 
-		req.Body = io.NopCloser(bytes.NewBuffer(b))
+	phone := requestData["phone"].(string)
 
-		phone := requestData["phone"].(string)
+	curAuthCount := rp.Incr(getAuthPhoneKey(phone))
+	rp.Expr(getAuthPhoneKey(phone), authPhoneBlockTime)
 
-		curAuthCount := rp.Incr(getAuthPhoneKey(phone))
-		rp.Expr(getAuthPhoneKey(phone), authPhoneBlockTime)
+	if curAuthCount > authCount {
+		h.lg.Log(ip, fmt.Sprintf("deny login by phone: phone: %s, expr: %d", phone, authPhoneBlockTime))
+		return true
+	}
 
-		if curAuthCount > authCount {
-			h.lg.Log(ip, fmt.Sprintf("deny login by phone: phone: %s, expr: %d", phone, authPhoneBlockTime))
-			return true
-		}
-
-		if h.denyHeader(c) {
-			h.lg.Log(ip, fmt.Sprintf("deny login by header: phone: %s", phone))
-			return true
-		}
+	if h.denyHeader(c) {
+		h.lg.Log(ip, fmt.Sprintf("deny login by header: phone: %s", phone))
+		return true
 	}
 
 	return false
