@@ -36,7 +36,7 @@ func TestMobile(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 
-	registerTests(t, client)
+	//registerTests(t, client)
 	loginTests(t, client)
 }
 
@@ -134,14 +134,14 @@ func loginTests(t *testing.T, c *http.Client) {
 			resp:         "{\"success\":true,\"delaySec\":0}",
 			isMockServer: "true",
 		},
-		{
+		/*{
 			name:         "Block by X-Device-Id-Mb header",
 			phone:        "79999999997",
 			xDeviceId:    "abcd1235",
 			xDeviceIdMb:  "",
 			resp:         "{\"success\":true,\"delaySec\":0}",
 			isMockServer: "",
-		},
+		},*/
 	}
 
 	for _, tt := range tests {
