@@ -38,6 +38,7 @@ func TestMobileRegistration(t *testing.T) {
 func registerTests(t *testing.T, c *http.Client) {
 	tests := []struct {
 		name         string
+		email        string
 		phone        string
 		xDeviceId    string
 		xDeviceIdMb  string
@@ -46,7 +47,8 @@ func registerTests(t *testing.T, c *http.Client) {
 	}{
 		{
 			name:         "Pass",
-			phone:        "79999999999",
+			email:        "qvQ2akbqIO2v@gmail.com",
+			phone:        "+79999999999",
 			xDeviceId:    "abcd1234",
 			xDeviceIdMb:  "efgh5678",
 			resp:         "{\"token\":\"AAABBBDDD\"}",
@@ -62,7 +64,7 @@ func registerTests(t *testing.T, c *http.Client) {
 
 			req, _ := http.NewRequest(
 				http.MethodPost, "http://localhost:9999/api/v8/manzana/registration",
-				strings.NewReader("{\"phone\":\""+tt.phone+"\"}"),
+				strings.NewReader("{\"EmailAddress\":\""+tt.email+"\"}"),
 			)
 
 			req.Header.Add("Content-Type", "application/json")

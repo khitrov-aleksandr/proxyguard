@@ -12,6 +12,7 @@ import (
 )
 
 func TestMobileLogin(t *testing.T) {
+	//t.Skip("not ready")
 	ctx := context.Background()
 	r := redis.NewClient(&redis.Options{
 		Addr: "redis:6379",

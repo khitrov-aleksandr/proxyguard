@@ -23,9 +23,6 @@ func (h *Handler) saveTraffic(c echo.Context, rp repository.Repository) error {
 			h.lg.Log(ip, fmt.Sprintf("save whitelist id: %s", deviceId))
 		} else {
 			rp.Expr(getWhitelistKey(deviceId), 7200)
-			incr := rp.Incr(getWhitelistKey(deviceId))
-
-			h.lg.Log(ip, fmt.Sprintf("incr whitelist: %s incr: %d", deviceId, incr))
 		}
 	}
 
