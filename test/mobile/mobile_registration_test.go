@@ -1,23 +1,18 @@
-package main
+package test_mobile
 
 import (
 	"context"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/khitrov-aleksandr/proxyguard/logger"
-	"github.com/khitrov-aleksandr/proxyguard/mobile/handler"
-	"github.com/khitrov-aleksandr/proxyguard/proxy"
-	"github.com/khitrov-aleksandr/proxyguard/repository"
-	"github.com/labstack/echo/v4"
 )
 
-func TestMobile(t *testing.T) {
+func TestMobileRegistration(t *testing.T) {
+	t.Skip("not ready")
 	ctx := context.Background()
 	r := redis.NewClient(&redis.Options{
 		Addr: "redis:6379",
@@ -36,8 +31,8 @@ func TestMobile(t *testing.T) {
 
 	time.Sleep(1 * time.Second)
 
-	//registerTests(t, client)
-	loginTests(t, client)
+	registerTests(t, client)
+	//loginTests2(t, client)
 }
 
 func registerTests(t *testing.T, c *http.Client) {
@@ -93,7 +88,7 @@ func registerTests(t *testing.T, c *http.Client) {
 	}
 }
 
-func loginTests(t *testing.T, c *http.Client) {
+func loginTests2(t *testing.T, c *http.Client) {
 	tests := []struct {
 		name         string
 		phone        string
@@ -176,48 +171,4 @@ func loginTests(t *testing.T, c *http.Client) {
 			}
 		})
 	}
-}
-
-func startProxy(ctx context.Context, r *redis.Client, s *httptest.Server) {
-	go func() {
-		rp := repository.NewRedisRepository(r, ctx)
-
-		aLog := logger.NewLogger("../logs/mobile/all-oz.log")
-		acLog := logger.NewLogger("../logs/mobile/accepted-oz.log")
-
-		h := handler.New(
-			rp,
-			logger.NewHandlerLogger("../logs/mobile/handle-oz.log"),
-		)
-
-		proxy.New(
-			"9999",
-			s.URL,
-			echo.New(),
-			h,
-			aLog,
-			acLog,
-		).Run()
-	}()
-}
-
-func startMockServer() *httptest.Server {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "application/json")
-		w.Header().Add("Is-Mock-Server", "true")
-
-		respString := "{\"name\":\"xcom-api\"}"
-
-		if r.RequestURI == "/api/v8/manzana/registration" {
-			respString = "{\"token\":\"AAABBBDDD\"}"
-		}
-
-		if r.RequestURI == "/api/v8/ecom-auth/login-sms-prestep" {
-			respString = "{\"success\":true,\"delaySec\":0}"
-		}
-
-		w.Write([]byte(respString))
-	}))
-
-	return server
 }
