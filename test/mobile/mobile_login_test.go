@@ -67,12 +67,20 @@ func loginTests(t *testing.T, c *http.Client) {
 			isMockServer: "",
 		},
 		{
-			name:         "Allow diff phone with same id",
+			name:         "Block first diff phone with same id",
 			phone:        "79999999998",
 			xDeviceId:    "abcd1234",
 			xDeviceIdMb:  "efgh5678",
 			resp:         "{\"success\":true,\"delaySec\":0}",
-			isMockServer: "true",
+			isMockServer: "",
+		},
+		{
+			name:         "Block second diff phone with same id",
+			phone:        "79999999997",
+			xDeviceId:    "abcd1234",
+			xDeviceIdMb:  "efgh5678",
+			resp:         "{\"success\":true,\"delaySec\":0}",
+			isMockServer: "",
 		},
 		/*{
 			name:         "Block by X-Device-Id-Mb header",

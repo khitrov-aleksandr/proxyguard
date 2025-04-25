@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/khitrov-aleksandr/proxyguard/filter"
@@ -19,6 +20,7 @@ const (
 	blockTime          int   = 86400
 	phoneBlockTime     int   = 1800
 	authPhoneBlockTime int   = 60
+	deviceIdBlockTime  int   = 3600
 )
 
 func (h *Handler) blockIpByRegister(c echo.Context, rp repository.Repository) bool {
@@ -101,6 +103,37 @@ func (h *Handler) denyLogin(c echo.Context, rp repository.Repository) bool {
 		return true
 	}
 
+	deviceId := req.Header.Get("X-Device-Id")
+	deviceIdKey := getLoginDeviceId(deviceId)
+
+	if rp.Get(deviceIdKey) == "" {
+		rp.Save(deviceIdKey, phone, deviceIdBlockTime)
+	} else {
+		if rp.Get(deviceIdKey) != phone {
+			rp.Incr(blockedPhoneKey(phone))
+			rp.Expr(blockedPhoneKey(phone), phoneBlockTime)
+
+			h.lg.Log(ip, fmt.Sprintf("add phone: %s to blacklist with deviceId: %s, expr: %d", phone, deviceId, phoneBlockTime))
+
+			rp.Incr(blockedKey(deviceId))
+			rp.Expr(blockedKey(deviceId), deviceIdBlockTime)
+
+			h.lg.Log(ip, fmt.Sprintf("add deviceId: %s to blacklist with phone: %s, expr: %d", deviceId, phone, phoneBlockTime))
+		}
+	}
+
+	n, _ := strconv.Atoi(rp.Get(blockedPhoneKey(phone)).(string))
+	if n > 0 {
+		h.lg.Log(ip, fmt.Sprintf("deny black list phone: %s, with deviceId: %s, with  expr: %d", phone, deviceId, phoneBlockTime))
+		return true
+	}
+
+	n, _ = strconv.Atoi(rp.Get(blockedKey(deviceId)).(string))
+	if n > 0 {
+		h.lg.Log(ip, fmt.Sprintf("deny black list deviceId: %s, with phone: %s, expr: %d", deviceId, phone, phoneBlockTime))
+		return true
+	}
+
 	/*
 		if h.denyHeader(c) {
 			h.lg.Log(ip, fmt.Sprintf("deny login by header: phone: %s", phone))
@@ -129,4 +162,16 @@ func getPhoneDiffValKey(phone string) string {
 
 func getAuthPhoneKey(phone string) string {
 	return fmt.Sprintf("auth_phone:%s", phone)
+}
+
+func getLoginDeviceId(deviceId string) string {
+	return fmt.Sprintf("login_device_id:%s", deviceId)
+}
+
+func blockedPhoneKey(phone string) string {
+	return fmt.Sprintf("blocked_phone:%s", phone)
+}
+
+func blockedKey(id string) string {
+	return fmt.Sprintf("blocked:%s", id)
 }
