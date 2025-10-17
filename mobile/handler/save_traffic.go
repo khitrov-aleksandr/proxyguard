@@ -10,19 +10,20 @@ import (
 func (h *Handler) saveTraffic(c echo.Context, rp repository.Repository) error {
 	req := c.Request()
 	method := req.Method
+
 	ip := c.RealIP()
 	deviceId := req.Header.Get("X-Device-Id")
 
 	if deviceId != "" && method == "GET" {
-		if rp.Get(getWhitelistKey(deviceId)) == "" {
-			err := rp.Save(getWhitelistKey(deviceId), deviceId, 7200)
+		if rp.Get(getWhitelistKey(ip, deviceId)) == "" {
+			err := rp.Save(getWhitelistKey(ip, deviceId), deviceId, 1800)
 			if err != nil {
 				return err
 			}
 
 			h.lg.Log(ip, fmt.Sprintf("save whitelist id: %s", deviceId))
 		} else {
-			rp.Expr(getWhitelistKey(deviceId), 7200)
+			rp.Expr(getWhitelistKey(ip, deviceId), 1800)
 		}
 	}
 
@@ -31,8 +32,11 @@ func (h *Handler) saveTraffic(c echo.Context, rp repository.Repository) error {
 
 func (h *Handler) allowById(c echo.Context, rp repository.Repository) bool {
 	req := c.Request()
+
+	ip := c.RealIP()
 	deviceId := req.Header.Get("X-Device-Id")
-	deviceIdWhitelistKey := rp.Get(getWhitelistKey(deviceId))
+
+	deviceIdWhitelistKey := rp.Get(getWhitelistKey(ip, deviceId))
 
 	if deviceIdWhitelistKey == "" {
 		h.lg.Log(c.RealIP(), fmt.Sprintf("deny by device id: %s whitelist id: %s", deviceId, deviceIdWhitelistKey))
@@ -42,6 +46,6 @@ func (h *Handler) allowById(c echo.Context, rp repository.Repository) bool {
 	return true
 }
 
-func getWhitelistKey(id string) string {
-	return fmt.Sprintf("whitelistId:%s", id)
+func getWhitelistKey(ip string, id string) string {
+	return fmt.Sprintf("whitelistId:%s:%s", ip, id)
 }
