@@ -6,54 +6,36 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/khitrov-aleksandr/proxyguard/contract"
-	"github.com/khitrov-aleksandr/proxyguard/logger"
-	"github.com/labstack/echo/v4"
+	"github.com/go-chi/chi"
 )
 
 type Proxy struct {
-	port  string
-	bUrl  string
-	c     *echo.Echo
-	h     contract.Handler
-	aLog  *logger.Logger
-	acLog *logger.Logger
+	r    *chi.Router
+	port string
+	url  string
 }
 
 func New(
 	port string,
-	bUrl string,
-	c *echo.Echo,
-	h contract.Handler,
-	aLog *logger.Logger,
-	acLog *logger.Logger,
+	url string,
 ) *Proxy {
 	return &Proxy{
-		port:  port,
-		bUrl:  bUrl,
-		c:     c,
-		h:     h,
-		aLog:  aLog,
-		acLog: acLog,
+		port: port,
+		url:  url,
 	}
 }
 
 func (p *Proxy) Run() {
-	p.c.Use(p.aLog.Handler)
-	p.c.Use(p.h.Handler)
-	p.c.Use(p.acLog.AcceptedHandler)
+	url, _ := url.Parse(p.url)
+	rProxy := httputil.NewSingleHostReverseProxy(url)
 
-	url, _ := url.Parse(p.bUrl)
-	proxy := httputil.NewSingleHostReverseProxy(url)
-
-	proxy.Transport = &http.Transport{
+	rProxy.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	p.c.Any("/*", func(c echo.Context) error {
-		proxy.ServeHTTP(c.Response().Writer, c.Request())
-		return nil
+	p.r.Any("/*", func(w http.ResponseWriter, r *http.Request) {
+		rProxy.ServeHTTP(w, r)
 	})
 
-	p.c.Start(":" + p.port)
+	p.r.Start(":" + p.port)
 }
