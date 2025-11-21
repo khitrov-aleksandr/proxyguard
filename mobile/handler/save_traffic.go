@@ -18,7 +18,7 @@ func (h *Handler) saveTraffic(c echo.Context, rp repository.Repository) error {
 	if deviceId != "" && method == "GET" {
 		getCount := rp.Incr(getWhitelistKey(ip, deviceId))
 		rp.Expr(getWhitelistKey(ip, deviceId), 1800)
-		h.lg.Log(ip, fmt.Sprintf("save whitelist get method count: %d", getCount))
+		h.lg.Log(ip, fmt.Sprintf("save whitelist get method count: %d id: %s", getCount, deviceId))
 	}
 
 	return nil
