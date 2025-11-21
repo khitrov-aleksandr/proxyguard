@@ -16,8 +16,8 @@ func (h *Handler) saveTraffic(c echo.Context, rp repository.Repository) error {
 	deviceId := req.Header.Get("X-Device-Id")
 
 	if deviceId != "" && method == "GET" {
-		getCount := rp.Incr(getWhitelistKey(ip, deviceId))
-		rp.Expr(getWhitelistKey(ip, deviceId), 1800)
+		getCount := rp.Incr(countKeyName(ip, deviceId))
+		rp.Expr(countKeyName(ip, deviceId), 1800)
 		h.lg.Log(ip, fmt.Sprintf("save whitelist get method count: %d id: %s", getCount, deviceId))
 	}
 
@@ -30,7 +30,7 @@ func (h *Handler) allowById(c echo.Context, rp repository.Repository) bool {
 	ip := c.RealIP()
 	deviceId := req.Header.Get("X-Device-Id")
 
-	getCount := rp.Get(getWhitelistKey(ip, deviceId))
+	getCount := rp.Get(countKeyName(ip, deviceId))
 	count, _ := strconv.Atoi(getCount.(string))
 
 	if count < 2 {
@@ -41,6 +41,6 @@ func (h *Handler) allowById(c echo.Context, rp repository.Repository) bool {
 	return true
 }
 
-func getWhitelistKey(ip string, id string) string {
-	return fmt.Sprintf("whitelistId:%s:%s", ip, id)
+func countKeyName(ip string, id string) string {
+	return fmt.Sprintf("countRequests:%s:%s", ip, id)
 }
