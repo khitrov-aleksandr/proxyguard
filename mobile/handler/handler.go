@@ -5,8 +5,10 @@ import (
 
 	"github.com/khitrov-aleksandr/proxyguard/contract"
 	"github.com/khitrov-aleksandr/proxyguard/faker"
+	"github.com/khitrov-aleksandr/proxyguard/filter"
 	"github.com/khitrov-aleksandr/proxyguard/logger"
 	"github.com/khitrov-aleksandr/proxyguard/repository"
+	"github.com/khitrov-aleksandr/proxyguard/traffic"
 	"github.com/labstack/echo/v4"
 )
 
@@ -21,18 +23,18 @@ func New(rp repository.Repository, lg *logger.HandlerLogger) contract.Handler {
 
 func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		h.saveTraffic(c, h.rp)
+		traffic.NewMobileTrafficSaver(c, h.rp).Handle()
 
 		uri := c.Request().RequestURI
 
 		if uri == "/api/v8/manzana/registration" || uri == "/mirror/manzana/registration" {
-			if !h.allowById(c, h.rp) || h.blockIpByRegister(c, h.rp) {
+			if !filter.NewMobileFilter(c, h.rp, h.lg).Handle() || h.blockIpByRegister(c, h.rp) {
 				return c.JSONPretty(http.StatusOK, faker.GetTokenResponse(), "")
 			}
 		}
 
 		if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
-			if !h.allowById(c, h.rp) || h.denyLogin(c, h.rp) {
+			if !filter.NewMobileFilter(c, h.rp, h.lg).Handle() || h.denyLogin(c, h.rp) {
 				return c.JSONPretty(http.StatusOK, faker.GetLoginResponse(), "")
 			}
 		}
