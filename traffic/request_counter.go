@@ -7,41 +7,43 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type GetRequestCounter struct {
+type RequestCounter struct {
 	c         echo.Context
 	rp        repository.Repository
 	method    string
 	keyPrefix string
-	keySuffix string
 	keyExpr   int
 }
 
-func NewGetRequestCounter(c echo.Context, rp repository.Repository, method string, keyPrefix string, keyExpr int) *GetRequestCounter {
-	return &GetRequestCounter{
+func NewRequestCounter(c echo.Context, rp repository.Repository, method string, keyPrefix string, keyExpr int) *RequestCounter {
+	return &RequestCounter{
 		c:         c,
 		rp:        rp,
 		method:    method,
 		keyPrefix: keyPrefix,
-		keySuffix: "req",
 		keyExpr:   keyExpr,
 	}
 }
 
-func (g *GetRequestCounter) ByIpAndHeader(hName string) {
-	ip := g.c.RealIP()
-	req := g.c.Request()
+func (r *RequestCounter) ByIpAndHeader(hName string) {
+	ip := r.c.RealIP()
+	req := r.c.Request()
 
 	method := req.Method
 	hVal := req.Header.Get(hName)
 
-	g.keySuffix = "ip:header"
+	key := r.keyName(ip, hVal, "ip:header")
 
-	if hVal != "" && method == g.method {
-		g.rp.Incr(g.keyName(ip, hVal))
-		g.rp.Expr(g.keyName(ip, hVal), g.keyExpr)
+	if hVal != "" && method == r.method {
+		r.rp.Incr(key)
+		r.rp.Expr(key, r.keyExpr)
 	}
 }
 
-func (g *GetRequestCounter) keyName(ip string, hVal string) string {
-	return fmt.Sprintf("%s:%s:%s:%s", g.keyPrefix, g.keySuffix, ip, hVal)
+func (r *RequestCounter) keyName(ip string, hVal string, keySuffix string) string {
+	if keySuffix == "" {
+		keySuffix = "req"
+	}
+
+	return fmt.Sprintf("%s:%s:%s:%s", r.keyPrefix, keySuffix, ip, hVal)
 }

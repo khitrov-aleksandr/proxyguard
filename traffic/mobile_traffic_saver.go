@@ -18,5 +18,5 @@ func NewMobileTrafficSaver(c echo.Context, rp repository.Repository) *MobileTraf
 }
 
 func (m *MobileTrafficSaver) Handle() {
-	NewGetRequestCounter(m.c, m.rp, "GET", "m:get", 1800).ByIpAndHeader("X-Device-Id")
+	NewRequestCounter(m.c, m.rp, "GET", "m:get", 1800).ByIpAndHeader("X-Device-Id")
 }
