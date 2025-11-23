@@ -33,7 +33,7 @@ func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
-		if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
+		if uri == "/api/v8/ecom-auth/login-sms-prestep" || uri == "/api/v8//ecom-auth/login-sms-prestep" || uri == "/mirror/ecom-auth/login-sms-prestep" {
 			if !filter.NewMobileFilter(c, h.rp, h.lg).Handle() || h.denyLogin(c, h.rp) {
 				return c.JSONPretty(http.StatusOK, faker.GetLoginResponse(), "")
 			}
