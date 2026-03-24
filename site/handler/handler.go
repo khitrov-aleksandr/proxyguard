@@ -19,7 +19,7 @@ import (
 const (
 	phoneRusField  string = "phоne"
 	phoneField     string = "phone"
-	countSmallExpr int64  = 2
+	countSmallExpr int64  = 3
 	smallExpr      int    = 100
 	bigExpr        int    = 86400
 )
