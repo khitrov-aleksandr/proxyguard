@@ -46,6 +46,29 @@ func (r *RequestFilter) ByIpAndHeader(hName string) bool {
 	return true
 }
 
+func (r *RequestFilter) ByIp() bool {
+	ip := r.c.RealIP()
+
+	r.keySuffix = "ip"
+
+	r.rp.Incr(r.keyNameIp(ip))
+	r.rp.Expr(r.keyNameIp(ip), 30)
+
+	countIp := r.rp.Get(r.keyNameIp(ip))
+	count, _ := strconv.Atoi(countIp.(string))
+
+	if count > 5 {
+		r.lg.Log(ip, fmt.Sprintf("deny by key: %s count: %d", r.keyNameIp(ip), count))
+		return false
+	}
+
+	return true
+}
+
 func (r *RequestFilter) keyName(ip string, hVal string) string {
 	return fmt.Sprintf("%s:%s:%s:%s", r.keyPrefix, r.keySuffix, ip, hVal)
+}
+
+func (r *RequestFilter) keyNameIp(ip string) string {
+	return fmt.Sprintf("%s:%s:%s", r.keyPrefix, r.keySuffix, ip)
 }

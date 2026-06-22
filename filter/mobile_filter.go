@@ -21,5 +21,6 @@ func NewMobileFilter(c echo.Context, rp repository.Repository, lg *logger.Handle
 }
 
 func (m *MobileFilter) Handle() bool {
-	return NewRequestFilter(m.c, m.rp, m.lg, "m:get").ByIpAndHeader("X-Device-Id")
+	return NewRequestFilter(m.c, m.rp, m.lg, "m:get").ByIpAndHeader("X-Device-Id") &&
+		NewRequestFilter(m.c, m.rp, m.lg, "m:login-sms-prestep").ByIp()
 }
