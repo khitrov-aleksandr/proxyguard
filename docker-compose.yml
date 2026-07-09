@@ -12,7 +12,10 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - "${SITE_PORT}:${SITE_PORT}"
+      - "${SITE_PORT_OZ}:${SITE_PORT_OZ}"
+      - "${SITE_PORT_SF}:${SITE_PORT_SF}"
+      - "${SITE_PORT_SA}:${SITE_PORT_SA}"
+      - "${SITE_PORT_ST}:${SITE_PORT_ST}"
       - "${MOBILE_PORT_OZ}:${MOBILE_PORT_OZ}"
       - "${MOBILE_PORT_SF}:${MOBILE_PORT_SF}"
       - "${MOBILE_PORT_SA}:${MOBILE_PORT_SA}"

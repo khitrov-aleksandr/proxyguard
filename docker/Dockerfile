@@ -7,7 +7,7 @@ RUN go mod download
 RUN useradd -m -s /bin/bash -u$APP_USER_ID app
 RUN chown -R app\: .
 USER app
-RUN CGO_ENABLED=0 GOOS=linux go build -o /tmp/run *.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /tmp/run .
 
 FROM alpine AS app
 ARG APP_USER_ID
