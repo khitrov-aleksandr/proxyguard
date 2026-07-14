@@ -45,15 +45,15 @@ func (h *Handler) Handler(next echo.HandlerFunc) echo.HandlerFunc {
 
 			if !prl.Allow(phone, countSmallExpr, smallExpr) {
 				h.lg.Log(req.RemoteAddr, fmt.Sprintf("block by phone rate limit: phone: %s, count: %d, expr: %d", phone, countSmallExpr, smallExpr))
-				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
+				return c.JSONPretty(429, faker.GetAuthSmsError(), "  ")
 			}
 
 			if h.denySession(c, h.rp) {
-				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
+				return c.JSONPretty(429, faker.GetAuthSmsError(), "  ")
 			}
 
 			if h.denyCookie(c) {
-				return c.JSONPretty(http.StatusOK, faker.GetAuthSms(), "  ")
+				return c.JSONPretty(429, faker.GetAuthSmsError(), "  ")
 			}
 		}
 

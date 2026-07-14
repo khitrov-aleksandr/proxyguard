@@ -23,3 +23,13 @@ func GetAuthSms() *authSms {
 		},
 	}
 }
+
+func GetAuthSmsError() *authSms {
+	return &authSms{
+		Message: "sms.verification_required",
+		SmsVerificationCode: smsVerificationCode{
+			Sended:  false,
+			Expires: time.Now().Add(time.Minute * 1),
+		},
+	}
+}
