@@ -11,3 +11,10 @@ func GetLoginResponse() *LoginResponse {
 		DelaySec: 0,
 	}
 }
+
+func GetLoginResponseError() *LoginResponse {
+	return &LoginResponse{
+		Success:  false,
+		DelaySec: 0,
+	}
+}
