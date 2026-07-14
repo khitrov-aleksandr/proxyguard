@@ -26,7 +26,7 @@ func GetAuthSms() *authSms {
 
 func GetAuthSmsError() *authSms {
 	return &authSms{
-		Message: "sms.verification_required",
+		Message: "Попробуйте через 2 минуты",
 		SmsVerificationCode: smsVerificationCode{
 			Sended:  false,
 			Expires: time.Now().Add(time.Minute * 1),
