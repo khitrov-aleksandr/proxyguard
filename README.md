@@ -121,7 +121,8 @@ location = /mirror {
      }
   }
   ```
-* авторизация для мобильного приложения:
+* Авторизация для мобильного приложения
+
   **POST /api/v8/ecom-auth/login-sms-prestep**
   ```json
   {
@@ -151,6 +152,7 @@ location = /mirror {
   }
   ```
 * регистрация пользователя для мобильного приложения
+
   **POST /api/v8/manzana/registration**
   ```json
   {
