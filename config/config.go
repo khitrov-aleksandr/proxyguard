@@ -18,6 +18,8 @@ type Config struct {
 	MobileBackendUrlSa string
 	MobilePortSt       string
 	MobileBackendUrlSt string
+	MobilePortEc       string
+	MobileBackendUrlEc string
 	MonitorPort        string
 	RedisAddr          string
 }
@@ -40,6 +42,8 @@ func New() *Config {
 		MobileBackendUrlSa: os.Getenv("MOBILE_BACKEND_URL_SA"),
 		MobilePortSt:       os.Getenv("MOBILE_PORT_ST"),
 		MobileBackendUrlSt: os.Getenv("MOBILE_BACKEND_URL_ST"),
+		MobilePortEc:       os.Getenv("MOBILE_PORT_EC"),
+		MobileBackendUrlEc: os.Getenv("MOBILE_BACKEND_URL_EC"),
 		MonitorPort:        os.Getenv("MONITOR_PORT"),
 		RedisAddr:          os.Getenv("REDIS_ADDR"),
 	}

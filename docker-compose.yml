@@ -17,6 +17,7 @@ services:
       - "${MOBILE_PORT_SF}:${MOBILE_PORT_SF}"
       - "${MOBILE_PORT_SA}:${MOBILE_PORT_SA}"
       - "${MOBILE_PORT_ST}:${MOBILE_PORT_ST}"
+      - "${MOBILE_PORT_EC}:${MOBILE_PORT_EC}"
       - "${MONITOR_PORT}:${MONITOR_PORT}"
     environment:
       - TZ=Europe/Moscow

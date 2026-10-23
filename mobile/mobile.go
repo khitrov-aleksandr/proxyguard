@@ -15,6 +15,7 @@ func Run(cfg *config.Config, rp repository.Repository) {
 	go runSf(cfg, rp)
 	go runSa(cfg, rp)
 	go runSt(cfg, rp)
+	go runEc(cfg, rp)
 }
 
 func runOz(cfg *config.Config, rp repository.Repository) {
@@ -86,6 +87,25 @@ func runSt(cfg *config.Config, rp repository.Repository) {
 	proxy.New(
 		cfg.MobilePortSt,
 		cfg.MobileBackendUrlSt,
+		echo.New(),
+		h,
+		aLog,
+		acLog,
+	).Run()
+}
+
+func runEc(cfg *config.Config, rp repository.Repository) {
+	aLog := logger.NewLogger("logs/mobile/all-ec.log")
+	acLog := logger.NewLogger("logs/mobile/accepted-ec.log")
+
+	h := handler.New(
+		rp,
+		logger.NewHandlerLogger("logs/mobile/handle-sc.log"),
+	)
+
+	proxy.New(
+		cfg.MobilePortEc,
+		cfg.MobileBackendUrlEc,
 		echo.New(),
 		h,
 		aLog,
