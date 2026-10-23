@@ -41,6 +41,7 @@ default:
       -p $MOBILE_PORT_SF:$MOBILE_PORT_SF
       -p $MOBILE_PORT_SA:$MOBILE_PORT_SA
       -p $MOBILE_PORT_ST:$MOBILE_PORT_ST
+      -p $MOBILE_PORT_EC:$MOBILE_PORT_EC
       -p $MONITOR_PORT:$MONITOR_PORT
       --name proxyguard $TAG_COMMIT
 
